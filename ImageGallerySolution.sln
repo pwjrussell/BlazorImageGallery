@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorUI", "BlazorUI\Blazor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageToolsClassLibrary", "ImageToolsClassLibrary\ImageToolsClassLibrary.csproj", "{E88B90AE-DD04-4232-86FF-E83FC6B6B57E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrudFunctions", "CrudFunctions\CrudFunctions.csproj", "{D7931100-A213-4864-B393-06678D4C1B80}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrudFunctions", "CrudFunctions\CrudFunctions.csproj", "{D7931100-A213-4864-B393-06678D4C1B80}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpRequestModelsClassLibrary", "HttpRequestModelsClassLibrary\HttpRequestModelsClassLibrary.csproj", "{1F323370-B4F5-400D-8215-0B280E82AD61}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpRequestModelsClassLibrary", "HttpRequestModelsClassLibrary\HttpRequestModelsClassLibrary.csproj", "{1F323370-B4F5-400D-8215-0B280E82AD61}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

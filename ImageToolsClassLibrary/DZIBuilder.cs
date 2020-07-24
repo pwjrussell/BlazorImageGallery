@@ -9,7 +9,7 @@ namespace ImageToolsClassLibrary
 {
     public static class DZIBuilder
     {
-        public delegate Task OnTileBuilt(string fileName, string contentType, Stream tileImageStream);
+        public delegate Task OnTileBuilt(string fileName, Stream tileImageStream);
         public delegate Task OnXMLBuilt(string fileName, string xml);
 
         /// <summary>
@@ -17,7 +17,8 @@ namespace ImageToolsClassLibrary
         /// </summary>
         /// <param name="imageName">The name of the image file, including the file extension.</param>
         /// <param name="imageStream">The stream of the image file.</param>
-        /// <param name="tileSize">The side length of the images generated in the image pyramid, excluding overlap.</param>
+        /// <param name="mimeContentType">The MIME content type of the images in the image pyramid.</param>
+        /// <param name="tileSize">The side length of the square tiles (excluding overlap) in the image pyramid.</param>
         /// <param name="overlap">The overlap of the images generated in the image pyramid.</param>
         /// <param name="onTileBuilt">The callback called when a tile in the image pyramid is built.</param>
         /// <param name="onXMLBuilt">The callback called when the .xml metadata file is built.</param>
@@ -25,13 +26,20 @@ namespace ImageToolsClassLibrary
         public static async Task Build(
             string imageName,
             Stream imageStream,
+            string mimeContentType,
             int tileSize,
             int overlap,
             OnTileBuilt onTileBuilt,
             OnXMLBuilt onXMLBuilt)
         {
             Bitmap imageBitmap = new Bitmap(imageStream);
+
             new FileExtensionContentTypeProvider().TryGetContentType(imageName, out string contentType);
+            if (contentType != mimeContentType)
+            {
+                throw new ArgumentException("The file extension and the MIME content type provided did not match.");
+            }
+
             ImageFormat format = GetImageFormat(contentType);
 
             string folderName = $"{imageName.Substring(0, imageName.LastIndexOf('.'))}_files";
@@ -43,15 +51,25 @@ namespace ImageToolsClassLibrary
             int indexOfCurrentLevel = (int)Math.Ceiling(Math.Log(Math.Max(imageBitmap.Width, imageBitmap.Height), 2));
             for (int i = indexOfCurrentLevel; i > -1; i--)
             {
-                await BuildTilesOnLevel(imageBitmap, format, contentType, i, tileSize, overlap, folderName, fileExtension, onTileBuilt);
+                await BuildTilesOnLevel(imageBitmap, format, i, tileSize, overlap, folderName, fileExtension, onTileBuilt);
                 imageBitmap = imageBitmap.ScaleBy(0.5);
             }
         }
-
+        /// <summary>
+        /// Splits the image provided (level) into tiles and calls the ontileBuilt on each tile.
+        /// </summary>
+        /// <param name="levelImage">The image corresponding to the current level of the image pyramid.</param>
+        /// <param name="format">The ImageFormat implementation used for saving the tile Bitmap into the stream passed to the callback.</param>
+        /// <param name="level">The level in the image pyramid, used for naming the tiles.</param>
+        /// <param name="tileSize">The side length of the square tiles (excluding overlap).</param>
+        /// <param name="overlap">The overlap of the tiles.</param>
+        /// <param name="folderName">The name of the folder into which the tiles will belong, used for naming the tiles.</param>
+        /// <param name="fileExtension">The file extension of the tiles, used for naming the tiles.</param>
+        /// <param name="onTileBuilt">The callback to call when a tile is built.</param>
+        /// <returns>A task that builds the tiles on a level of the image pyramid with the callback provided.</returns>
         private static async Task BuildTilesOnLevel(
             Image levelImage,
             ImageFormat format,
-            string contentType,
             int level,
             int tileSize,
             int overlap,
@@ -86,7 +104,8 @@ namespace ImageToolsClassLibrary
                     {
                         graphics.DrawImage(levelImage, destRect, srcRect, GraphicsUnit.Pixel);
                         tileBitmap.Save(stream, format);
-                        await onTileBuilt($"{prefix}{i}_{j}{fileExtension}", contentType, stream);
+                        stream.Seek(0, SeekOrigin.Begin);
+                        await onTileBuilt($"{prefix}{i}_{j}{fileExtension}", stream);
                     }
                 }
             }

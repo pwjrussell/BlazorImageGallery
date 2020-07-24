@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ImageToolsClassLibrary\ImageToolsClassLibrary.csproj" />
+    <ProjectReference Include="..\HttpRequestModelsClassLibrary\HttpRequestModelsClassLibrary.csproj" />
   </ItemGroup>
 
 </Project>

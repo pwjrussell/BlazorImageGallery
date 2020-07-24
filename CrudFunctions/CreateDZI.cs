@@ -6,10 +6,9 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.Azure.Storage.Blob;
 using ImageToolsClassLibrary;
-using HttpRequestModelsClassLibrary;
+using System.Web.Http;
 
 namespace CrudFunctions
 {
@@ -17,34 +16,48 @@ namespace CrudFunctions
     {
         [FunctionName("CreateDZI")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "CreateDZI")] HttpRequest req,
-            [Blob("DZImages", FileAccess.Read)] CloudBlobContainer container,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
+            [Blob("dzi-images", FileAccess.Write)] CloudBlobContainer container,
             ILogger log)
         {
-            CreateDZIRequest request = JsonConvert.DeserializeObject<CreateDZIRequest>(await req.ReadAsStringAsync());
-
-            DZIBuilder.OnTileBuilt onTileBuilt = async (fileName, contentType, tileImageStream) => 
+            try
             {
-                CloudBlockBlob blockBlob = container.GetBlockBlobReference(fileName);
-                blockBlob.Properties.ContentType = contentType;
-                await blockBlob.UploadFromStreamAsync(tileImageStream);
-            };
-            DZIBuilder.OnXMLBuilt onXMLBuilt = async (fileName, xml) =>
+                string imageName = req.Query["imagename"];
+                int tileSize = Convert.ToInt32(req.Query["tilesize"]);
+                int overlap = Convert.ToInt32(req.Query["overlap"]);
+
+                Stream imageStream = req.Body;
+                string dirName = imageName.Substring(0, imageName.LastIndexOf('.'));
+
+                DZIBuilder.OnTileBuilt onTileBuilt = async (fileName, tileImageStream) =>
+                {
+                    CloudBlockBlob blockBlob = container.GetBlockBlobReference($"{dirName}/{fileName}");
+                    blockBlob.Properties.ContentType = req.ContentType;
+                    await blockBlob.UploadFromStreamAsync(tileImageStream);
+                };
+                DZIBuilder.OnXMLBuilt onXMLBuilt = async (fileName, xml) =>
+                {
+                    CloudBlockBlob blockBlob = container.GetBlockBlobReference($"{dirName}/{fileName}");
+                    blockBlob.Properties.ContentType = "text/xml";
+                    await blockBlob.UploadTextAsync(xml);
+                };
+
+                await DZIBuilder.Build(
+                    imageName,
+                    imageStream,
+                    req.ContentType,
+                    tileSize,
+                    overlap,
+                    onTileBuilt,
+                    onXMLBuilt);
+
+                return new OkResult();
+            }
+            catch (Exception e)
             {
-                CloudBlockBlob blockBlob = container.GetBlockBlobReference(fileName);
-                blockBlob.Properties.ContentType = "text/xml";
-                await blockBlob.UploadTextAsync(xml);
-            };
-
-            await DZIBuilder.Build(
-                request.ImageName,
-                request.ImageStream,
-                request.TileSize,
-                request.Overlap,
-                onTileBuilt,
-                onXMLBuilt);
-
-            return new OkResult();
+                log.LogError(e.ToString());
+                return new InternalServerErrorResult();
+            }
         }
     }
 }

@@ -2,9 +2,15 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
+    <UserSecretsId>59c87cc9-82a2-4921-9677-c2290921688e</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="4.0.2" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\HttpRequestModelsClassLibrary\HttpRequestModelsClassLibrary.csproj" />
+    <ProjectReference Include="..\ImageToolsClassLibrary\ImageToolsClassLibrary.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
