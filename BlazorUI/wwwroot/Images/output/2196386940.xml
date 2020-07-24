@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Image xmlns="http://schemas.microsoft.com/deepzoom/2009"
-        Format="jpg" 
-        Overlap="1" 
-        ServerFormat="Default"
-        TileSize="256" >
-    <Size Height="5200" 
-            Width="7864"/>
-</Image>

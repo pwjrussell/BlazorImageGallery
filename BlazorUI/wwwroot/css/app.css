@@ -1,7 +1,9 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
-body, h1, h2, h3, h4, h5, h6 {
-    font-family: "Raleway", sans-serif
+.full-page-container {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
 }
 
 .valid.modified:not([type=checkbox]) {
