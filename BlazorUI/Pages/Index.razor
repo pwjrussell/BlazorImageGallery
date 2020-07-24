@@ -1,3 +1,25 @@
 ﻿@page "/"
 
+@using BlazorUI.Services.APIClients
 
+@inject AnonymousDZIClient AnonymousClient
+
+@if ((DZIPrefixes != null) && (DZIPrefixes.Length > 0))
+{
+    <div>
+        <OpenSeadragonViewer TileSourcePath="@AnonymousClient.GetTileSourcePathPrefix(DZIPrefixes[0])"
+                             style="width:1000px;height:600px;" />
+    </div>
+}
+
+@code {
+    private string[] DZIPrefixes = new string[0];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        DZIPrefixes = await AnonymousClient.GetDZIPrefixes();
+        Console.WriteLine(DZIPrefixes);
+    }
+}

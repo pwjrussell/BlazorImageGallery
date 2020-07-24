@@ -16,7 +16,6 @@ namespace BlazorUI.Services.APIClients
         public AnonymousDZIClient(HttpClient client)
         {
             _client = client;
-            _client.BaseAddress = new Uri("");
         }
 
         public async Task<string[]> GetDZIPrefixes()
@@ -24,7 +23,7 @@ namespace BlazorUI.Services.APIClients
             return await _client.GetFromJsonAsync<string[]>($"{_functionsBaseAddress}ListDZIDirectories");
         }
 
-        public string GetDZIXMLAddressFromPrefix(string prefix)
+        public string GetTileSourcePathPrefix(string prefix)
         {
             return $"{_storageBaseAddress}{prefix}{prefix[0..^1]}.xml";
         }

@@ -13,8 +13,10 @@ namespace BlazorUI
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 
-            builder.Services.AddScoped(sp => new HttpClient());
-            builder.Services.AddScoped<AdminDZIClient>();
+            builder.Services.AddSingleton(sp => new HttpClient());
+
+            builder.Services.AddSingleton<AnonymousDZIClient>();
+            builder.Services.AddSingleton<AdminDZIClient>();
 
             await builder.Build().RunAsync();
         }

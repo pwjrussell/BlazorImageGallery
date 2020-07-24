@@ -113,7 +113,7 @@ namespace ImageToolsClassLibrary
 
         private static string BuildXML(string fileExtension, int overlap, int tileSize, int imageWidth, int imageHeight)
         {
-            return $"<? xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Image xmlns=\"http://schemas.microsoft.com/deepzoom/2009\" Format=\"{fileExtension.Substring(1)}\" Overlap=\"{overlap}\" ServerFormat=\"Default\" TileSize=\"{tileSize}\"><Size Height=\"{imageHeight}\" Width=\"{imageWidth}\"/></Image>";
+            return $"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Image xmlns=\"http://schemas.microsoft.com/deepzoom/2009\" Format=\"{fileExtension.Substring(1)}\" Overlap=\"{overlap}\" ServerFormat=\"Default\" TileSize=\"{tileSize}\"><Size Height=\"{imageHeight}\" Width=\"{imageWidth}\"/></Image>";
         }
 
         private static ImageFormat GetImageFormat(string contentType)
