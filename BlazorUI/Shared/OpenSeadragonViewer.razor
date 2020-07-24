@@ -7,7 +7,7 @@
     [Parameter(CaptureUnmatchedValues = true)] 
     public Dictionary<string, object> UnmatchedParameters { get; set; }
     [Parameter]
-    public string TileSourcePath { get; set; }
+    public string[] TileSourcePaths { get; set; }
 
     private ElementReference ViewerReference { get; set; }
 
@@ -17,7 +17,7 @@
 
         if (firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("OpenSeadragonClient.initDZI", ViewerReference, TileSourcePath);
+            await JSRuntime.InvokeVoidAsync("OpenSeadragonClient.initDZI", ViewerReference, TileSourcePaths);
         }
     }
 }

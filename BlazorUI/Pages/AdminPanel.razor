@@ -5,67 +5,93 @@
 
 @inject AdminDZIClient AdminClient
 
-<!-- Button to triger modal -->
-<button class="btn btn-primary mb-4 ml-4" type="button" data-toggle="modal" data-target="#exampleModal">
-    Make your own DZI file
-</button>
+<div style="pointer-events:@(ShowLoadingScreen ? "none" : "auto");">
+    <!-- Button to triger modal -->
+    <button class="btn btn-primary mb-4 ml-4" type="button" data-toggle="modal" data-target="#exampleModal">
+        Make your own DZI file
+    </button>
 
-<!-- Modal -->
-<div class="modal fade"
-        id="exampleModal"
-        tabindex="-1"
-        role="dialog"
-        aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">
-                    Make your own
-                    <a href="https://github.com/openseadragon/openseadragon/wiki/The-DZI-File-Format"
-                        target="_blank">
-                        DZI image
-                    </a>.
-                </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>
-                    Select an image file, and a zipped folder with the .xml and image files will be
-                    downloaded to your computer.
-                </p>
-                <div class="form-group">
+    <!-- Modal -->
+    <div class="modal fade"
+            id="exampleModal"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">
+                        Make your own
+                        <a href="https://github.com/openseadragon/openseadragon/wiki/The-DZI-File-Format"
+                            target="_blank">
+                            DZI image
+                        </a>.
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Select an image file to be uploaded for processing. This might take a long time.
+                    </p>
                     <div class="form-group">
-                        <label for="tileWidth" class="col-form-label">Tile Size:</label>
-                        <input class="form-control" @bind="TileSize">
+                        <div class="form-group">
+                            <label for="tileWidth" class="col-form-label">Tile Size:</label>
+                            <input class="form-control" @bind="TileSize">
 
-                        <label for="overlap" class="col-form-label">Overlap:</label>
-                        <input class="form-control" @bind="Overlap">
+                            <label for="overlap" class="col-form-label">Overlap:</label>
+                            <input class="form-control" @bind="Overlap">
+                        </div>
                     </div>
-                </div>
-                <div class="d-inline-flex">
-                    <InputFile OnChange="OnFileselectedForDZICreation" />
-                    <div id="spinner" class="spinner-border" role="status" style="display: none;">
-                        <span class="sr-only">Loading...</span>
+                    <div class="d-inline-flex">
+                        <InputFile OnChange="OnFileselectedForDZICreation" />
+                        <div id="spinner" class="spinner-border" role="status" style="display: none;">
+                            <span class="sr-only">Loading...</span>
+                        </div>
                     </div>
+                    <p class="text-muted" id="statusText"></p>
                 </div>
-                <p class="text-muted" id="statusText"></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
+@if (ShowLoadingScreen)
+{
+    <div class="loading-screen">
+        <div class="centered text-white text-center">
+            <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <p class="mt-4">
+                Uploading the image, this may take a while.
+            </p>
+        </div>
+    </div>
+}
+
+
 @code {
-    private int TileSize { get; set; } = 256;
+    private int TileSize { get; set; } = 512;
     private int Overlap { get; set; } = 1;
+
+    private bool ShowLoadingScreen { get; set; } = false;
 
     private async Task OnFileselectedForDZICreation(IFileListEntry[] files)
     {
+        ToggleLoadingScreen();
         await AdminClient.PostCreateDZIAsync(files[0], TileSize, Overlap);
+        ToggleLoadingScreen();
+    }
+
+    private void ToggleLoadingScreen()
+    {
+        ShowLoadingScreen = !ShowLoadingScreen;
+        this.StateHasChanged();
     }
 }

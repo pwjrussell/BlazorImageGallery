@@ -23,7 +23,7 @@ namespace CrudFunctions
         {
             try
             {
-                IEnumerable directories = container.ListBlobs().OfType<CloudBlobDirectory>().Select(dir => dir.Prefix);
+                IEnumerable directories = container.ListBlobs().OfType<CloudBlobDirectory>().Select(dir => dir.Uri.AbsoluteUri);
                 return new OkObjectResult(directories);
             }
             catch (Exception e)
