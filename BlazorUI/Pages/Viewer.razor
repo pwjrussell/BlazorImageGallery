@@ -1,0 +1,84 @@
+﻿@page "/viewer/{ImageName}"
+
+@inject IJSRuntime JsRuntime
+
+<!-- Header -->
+<header>
+    <div class="w3-container">
+        <h1><a href="/"><b>My Gallery</b></a></h1>
+        <div class="w3-section w3-bottombar w3-padding-16">
+            <span class="w3-margin-right">Options (limited due to JS memory constraints):</span>
+            <button class="w3-button w3-black" type="button" data-toggle="modal" data-target="#exampleModal">
+                Create New DZI
+            </button>
+        </div>
+    </div>
+</header>
+<div style="overflow-x: hidden;">
+    <OpenSeadragonViewer TileSourcePath="@($"Images/{ImageName.Substring(0, ImageName.LastIndexOf('.'))}.xml")" style="width:100%; height:80vh" />
+</div>
+
+<!-- Modal -->
+<div class="modal fade"
+     id="exampleModal"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                    Make your own
+                    <a href="https://github.com/openseadragon/openseadragon/wiki/The-DZI-File-Format"
+                       target="_blank">
+                        DZI image
+                    </a>.
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Select an image file, and a zipped folder with the .xml and image files will be
+                    downloaded to your computer.
+                </p>
+                <div class="form-group">
+                    <div class="form-group">
+                        <label for="tileWidth" class="col-form-label">Tile Width:</label>
+                        <input type="text" class="form-control" id="tileWidth" value="256">
+
+                        <label for="overlap" class="col-form-label">Overlap:</label>
+                        <input type="text" class="form-control" id="overlap" value="1">
+                    </div>
+                </div>
+                <div class="d-inline-flex">
+                    <input id="createDZIFileInput" type="file" />
+                    <div id="spinner" class="spinner-border" role="status" style="display: none;">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                <p class="text-muted" id="statusText"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string ImageName { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            await JsRuntime.InvokeVoidAsync("DZIBuilderClient.init");
+        }
+    }
+}

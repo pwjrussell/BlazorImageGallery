@@ -1,0 +1,23 @@
+﻿
+@inject IJSRuntime JSRuntime
+
+<div @ref="ViewerReference" @attributes="UnmatchedParameters"></div>
+
+@code {
+    [Parameter(CaptureUnmatchedValues = true)] 
+    public Dictionary<string, object> UnmatchedParameters { get; set; }
+    [Parameter]
+    public string TileSourcePath { get; set; }
+
+    private ElementReference ViewerReference { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("OpenSeadragonClient.initDZI", ViewerReference, TileSourcePath);
+        }
+    }
+}
