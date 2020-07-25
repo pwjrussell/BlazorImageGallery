@@ -1,6 +1,7 @@
 ﻿@page "/"
 
 @using BlazorUI.Services.APIClients
+@using HttpRequestModelsClassLibrary
 @using Microsoft.AspNetCore.WebUtilities
 
 @inject AnonymousDZIClient AnonymousClient
@@ -9,7 +10,62 @@
 @if ((TileSourcePaths != null) && (TileSourcePaths.Length > 0))
 {
     <div class="full-page-container">
-        <OpenSeadragonViewer TileSourcePaths="@TileSourcePaths" style="width:100%;height:100%;margin:auto;" />
+        <div @ref="PopupReference" class="centered p-4">
+
+        </div>
+        <div class="sidebar">
+            <div class="card h-100">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link @((SidebarPane == 0) ? "active" : "")" 
+                               href="#"
+                               @onclick="@(() => { SidebarPane = 0; this.StateHasChanged(); })">
+                                Info
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @((SidebarPane == 1) ? "active" : "")" 
+                               href="#"
+                               @onclick="@(() => { SidebarPane = 1; this.StateHasChanged(); })">
+                                Regions
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    @if (SidebarPane == 0)
+                    {
+                        <h4>Info</h4>
+                        <p>Info</p>
+                    }
+                    else if (SidebarPane == 1)
+                    {
+                        if (AnnotationsOnCurrentPage != null && AnnotationsOnCurrentPage.Length > 0)
+                        {
+                            <ul class="list-group">
+                                @foreach (var annotation in AnnotationsOnCurrentPage)
+                                {
+                                    <li class="list-group-item">
+                                        <p>@annotation.Body[0].Value</p>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p>There are no annotations on this page.</p>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="osd-display">
+            <OpenSeadragonViewer @ref="Viewer" 
+                                 TileSourcePaths="TileSourcePaths" 
+                                 OnAnnotationsChanged="OnAnnotationsChanged"
+                                 class="covers-entire-parent" />
+        </div>
     </div>
 }
 
@@ -30,6 +86,18 @@
 @code {
     private string[] TileSourcePaths { get; set; }
     private bool HasInitialized { get; set; } = false;
+
+    private ElementReference PopupReference { get; set; }
+    private OpenSeadragonViewer Viewer { get; set; }
+
+    private int SidebarPane { get; set; } = 0;
+    private W3CWebAnnotationModel[] AnnotationsOnCurrentPage { get; set; }
+
+    private async Task OnAnnotationsChanged(W3CWebAnnotationModel[] annotations)
+    {
+        AnnotationsOnCurrentPage = annotations;
+        this.StateHasChanged();
+    }
 
     protected override async Task OnInitializedAsync()
     {
