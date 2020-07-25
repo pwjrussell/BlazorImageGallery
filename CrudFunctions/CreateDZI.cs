@@ -19,13 +19,14 @@ namespace CrudFunctions
         {
             try
             {
+                string category = stagedImage.Metadata["category"];
                 int tileSize = Convert.ToInt32(stagedImage.Metadata["tilesize"]);
                 int overlap = Convert.ToInt32(stagedImage.Metadata["overlap"]);
 
                 Stream imageStream = new MemoryStream();
                 await stagedImage.DownloadToStreamAsync(imageStream);
 
-                string dirName = imageName.Substring(0, imageName.LastIndexOf('.'));
+                string dirName = $"{category}/{imageName.Substring(0, imageName.LastIndexOf('.'))}";
 
                 DZIBuilder.OnTileBuilt onTileBuilt = async (fileName, tileImageStream) =>
                 {

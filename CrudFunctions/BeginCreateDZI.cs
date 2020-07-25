@@ -18,14 +18,22 @@ namespace CrudFunctions
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "BeginCreateDZI/{name}")] HttpRequest req,
             [Blob("staged-images/{name}", FileAccess.Write)] CloudBlockBlob image,
+            string name,
             ILogger log)
         {
             try
             {
+                string category = req.Query["category"];
+                if (name.Contains('/') || name.Contains('\\') ||
+                    category.Contains('/') || category.Contains('\\'))
+                {
+                    throw new ArgumentException("The file name or category contained a slash.");
+                }
                 int tileSize = Convert.ToInt32(req.Query["tilesize"]);
                 int overlap = Convert.ToInt32(req.Query["overlap"]);
 
                 image.Properties.ContentType = req.ContentType;
+                image.Metadata["category"] = category;
                 image.Metadata["tilesize"] = tileSize.ToString();
                 image.Metadata["overlap"] = overlap.ToString();
 

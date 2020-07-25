@@ -1,10 +1,10 @@
 ﻿@page "/"
-@page "/{SlideIndex:int}"
 
 @using BlazorUI.Services.APIClients
+@using Microsoft.AspNetCore.WebUtilities
 
-@inject HttpClient Client
 @inject AnonymousDZIClient AnonymousClient
+@inject NavigationManager NavManager
 
 @if ((TileSourcePaths != null) && (TileSourcePaths.Length > 0))
 {
@@ -28,9 +28,6 @@
 }
 
 @code {
-    [Parameter]
-    public int SlideIndex { get; set; } = 0;
-
     private string[] TileSourcePaths { get; set; }
     private bool HasInitialized { get; set; } = false;
 
@@ -38,12 +35,18 @@
     {
         await base.OnInitializedAsync();
 
-        string[] DirectoryURIs = await AnonymousClient.GetDZIDirectoryURIs();
+        Uri uri = NavManager.ToAbsoluteUri(NavManager.Uri);
+        if (!QueryHelpers.ParseQuery(uri.Query).TryGetValue("category", out var category))
+        {
+            category = "test category";
+        }
+
+        string[] DirectoryURIs = await AnonymousClient.GetDZIDirectoryURIsAsync(category);
 
         TileSourcePaths = new string[DirectoryURIs.Length];
         for (int i = 0; i < DirectoryURIs.Length; i++)
         {
-            TileSourcePaths[i] = AnonymousClient.GetTileSourcePathFromDirectoryURI(DirectoryURIs[i]);
+            TileSourcePaths[i] = AnonymousClient.GetTileSourceURIFromDirectoryURI(DirectoryURIs[i]);
         }
 
         HasInitialized = true;

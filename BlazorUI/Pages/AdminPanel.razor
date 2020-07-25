@@ -38,11 +38,14 @@
                     </p>
                     <div class="form-group">
                         <div class="form-group">
+                            <label for="category" class="col-form-label">Category:</label>
+                            <input id="category" class="form-control" @bind="Category">
+
                             <label for="tileWidth" class="col-form-label">Tile Size:</label>
-                            <input class="form-control" @bind="TileSize">
+                            <input id="tileWidth" class="form-control" @bind="TileSize">
 
                             <label for="overlap" class="col-form-label">Overlap:</label>
-                            <input class="form-control" @bind="Overlap">
+                            <input id="overlap" class="form-control" @bind="Overlap">
                         </div>
                     </div>
                     <div class="d-inline-flex">
@@ -77,6 +80,7 @@
 
 
 @code {
+    private string Category { get; set; } = "test category";
     private int TileSize { get; set; } = 512;
     private int Overlap { get; set; } = 1;
 
@@ -85,7 +89,7 @@
     private async Task OnFileselectedForDZICreation(IFileListEntry[] files)
     {
         ToggleLoadingScreen();
-        await AdminClient.PostCreateDZIAsync(files[0], TileSize, Overlap);
+        await AdminClient.PostCreateDZIAsync(files[0], Category, TileSize, Overlap);
         ToggleLoadingScreen();
     }
 

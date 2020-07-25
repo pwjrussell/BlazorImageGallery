@@ -18,7 +18,7 @@ namespace BlazorUI.Services.APIClients
             _client.Timeout = TimeSpan.FromDays(1);
         }
 
-        public async Task<HttpResponseMessage> PostCreateDZIAsync(IFileListEntry image, int tileSize, int overlap)
+        public async Task<HttpResponseMessage> PostCreateDZIAsync(IFileListEntry image, string category, int tileSize, int overlap)
         {
             Console.WriteLine("Started creating request.");
 
@@ -28,8 +28,9 @@ namespace BlazorUI.Services.APIClients
             Console.WriteLine("Posting request");
 
             return await _client.PostAsync(
-                string.Format("BeginCreateDZI/{0}?tilesize={1}&overlap={2}", 
+                string.Format("BeginCreateDZI/{0}?category={1}&tilesize={2}&overlap={3}", 
                     HttpUtility.UrlEncode(image.Name),
+                    category,
                     tileSize,
                     overlap), 
                 content);

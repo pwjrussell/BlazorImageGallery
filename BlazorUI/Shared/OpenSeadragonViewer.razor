@@ -1,8 +1,6 @@
 ﻿
 @inject IJSRuntime JSRuntime
 
-@using Models
-
 <div @ref="ViewerReference" @attributes="UnmatchedParameters"></div>
 
 @code {
@@ -39,19 +37,9 @@
             //}
             //";
 
-            W3CWebAnnotationModel[][] annotations = new W3CWebAnnotationModel[][]
-            {
-                new W3CWebAnnotationModel[]
-                {
-                    new W3CWebAnnotationModel("Hello", 50, 50, 100, 100)
-                },
-                new W3CWebAnnotationModel[]
-                {
+            string[] annotationPaths = new string[0];
 
-                }
-            };
-
-            await JSRuntime.InvokeVoidAsync("OpenSeadragonClient.initDZI", ViewerReference, TileSourcePaths, annotations);
+            await JSRuntime.InvokeVoidAsync("OpenSeadragonClient.initDZI", ViewerReference, TileSourcePaths, annotationPaths);
         }
     }
 }

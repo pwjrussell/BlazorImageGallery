@@ -10,12 +10,13 @@ using System.Collections;
 using System;
 using System.Web.Http;
 using System.Linq;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace CrudFunctions
 {
-    public static class ListDZIDirectories
+    public static class ListDZIDirectoryURIs
     {
-        [FunctionName("ListDZIDirectories")]
+        [FunctionName("ListDZIDirectoryURIs")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = null)] HttpRequest req,
             [Blob("dzi-images", FileAccess.Read)] CloudBlobContainer container,
@@ -23,7 +24,17 @@ namespace CrudFunctions
         {
             try
             {
-                IEnumerable directories = container.ListBlobs().OfType<CloudBlobDirectory>().Select(dir => dir.Uri.AbsoluteUri);
+                string category = req.Query["category"];
+                if ((category != null) && (category.Contains('/') || category.Contains('\\')))
+                {
+                    throw new ArgumentException("The category contained a slash.");
+                }
+
+                IEnumerable directories = container
+                    .ListBlobs($"{category}/")
+                    .OfType<CloudBlobDirectory>()
+                    .Select(dir => dir.Uri.AbsoluteUri);
+
                 return new OkObjectResult(directories);
             }
             catch (Exception e)
