@@ -29,7 +29,8 @@ namespace BlazorUI.Services.APIClients
                 return new string[0];
             }
             return await _client.GetFromJsonAsync<string[]>(
-                $"{_functionsBaseAddress}ListDZIDirectoryURIs?category={HttpUtility.UrlEncode(category)}");
+                //$"{_functionsBaseAddress}ListDZIDirectoryURIs{((category == "") ? "" : $"?category={HttpUtility.UrlEncode(category)}")}");
+                $"{_functionsBaseAddress}ListDZIDirectoryURIs{((category == "") ? "" : $"?category={category}")}");
         }
         /// <summary>
         /// Gets the path to the .xml tileSource metadata file given the path to the containing directory.
