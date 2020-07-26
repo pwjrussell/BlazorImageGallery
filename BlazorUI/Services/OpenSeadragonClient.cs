@@ -36,6 +36,10 @@ namespace BlazorUI.Services
         {
             await _JsRuntime.InvokeVoidAsync("OpenSeadragonClient.panTo", x, y);
         }
+        public async Task PanTo(string id)
+        {
+            await _JsRuntime.InvokeVoidAsync("OpenSeadragonClient.annoPanTo", id);
+        }
 
         private async Task OnAnnotationsChangedCallback(W3CWebAnnotationModel[] annotations)
         {

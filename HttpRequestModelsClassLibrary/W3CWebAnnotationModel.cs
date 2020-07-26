@@ -15,80 +15,54 @@ namespace HttpRequestModelsClassLibrary
         }
         public W3CWebAnnotationModel(string text, int x, int y, int width, int height)
         {
-            Content = "http://www.w3.org/ns/anno.jsonld";
+            @context = "http://www.w3.org/ns/anno.jsonld";
             SetNewUuid();
-            Type = "Annotation";
-            Body = new Body[1]
+            type = "Annotation";
+            body = new Body[1]
             {
                 new Body()
                 {
-                    Type = "TextualBody",
-                    Value = text
+                    type = "TextualBody",
+                    value = text,
+                    purpose = "commenting"
                 }
             };
-            Target = new Target()
+            target = new Target()
             {
-                Selector = new Selector()
+                selector = new Selector()
                 {
-                    Type = "FragmentSelector",
-                    ConformsTo = "http://www.w3.org/TR/media-frags/",
-                    Value = $"xywh=pixel:{x},{y},{width},{height}"
+                    type = "FragmentSelector",
+                    conformsTo = "http://www.w3.org/TR/media-frags/",
+                    value = $"xywh=pixel:{x},{y},{width},{height}"
                 }
             };
         }
 
-        [JsonPropertyName("@content")]
-        public string Content { get; set; }
-        public string Id { get; set; }
-        public string Type { get; set; }
-        public Body[] Body { get; set; }
-        public Target Target { get; set; }
-
-        [JsonIgnore]
-        public (int x, int y, int width, int height) Dimensions 
-        { 
-            get 
-            {
-                string x = "", y = "", height = "", width = "";
-                int i = 10;
-                while (Target.Selector.Value[++i] != ',')
-                {
-                    x += Target.Selector.Value[i];
-                }
-                while (Target.Selector.Value[++i] != ',')
-                {
-                    y += Target.Selector.Value[i];
-                }
-                while (Target.Selector.Value[++i] != ',')
-                {
-                    width += Target.Selector.Value[i];
-                }
-                while (++i < Target.Selector.Value.Length)
-                {
-                    height += Target.Selector.Value[i];
-                }
-                return (Convert.ToInt32(x), Convert.ToInt32(y), Convert.ToInt32(width), Convert.ToInt32(height)); 
-            } 
-        }
+        public string @context { get; set; }
+        public string id { get; set; }
+        public string type { get; set; }
+        public Body[] body { get; set; }
+        public Target target { get; set; }
 
         public void SetNewUuid()
         {
-            Id = $"#{Guid.NewGuid():D}";
+            id = $"#{Guid.NewGuid():D}";
         }
     }
     public class Body
     {
-        public string Type { get; set; }
-        public string Value { get; set; }
+        public string type { get; set; }
+        public string value { get; set; }
+        public string purpose { get; set; }
     }
     public class Target
     {
-        public Selector Selector { get; set; }
+        public Selector selector { get; set; }
     }
     public class Selector
     {
-        public string Type { get; set; }
-        public string ConformsTo { get; set; }
-        public string Value { get; set; }
+        public string type { get; set; }
+        public string conformsTo { get; set; }
+        public string value { get; set; }
     }
 }

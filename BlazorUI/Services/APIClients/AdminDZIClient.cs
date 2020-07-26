@@ -13,11 +13,13 @@ namespace BlazorUI.Services.APIClients
     {
         private readonly HttpClient _client;
 
-        public AdminDZIClient(HttpClient client)
+        public AdminDZIClient()
         {
-            _client = client;
-            _client.BaseAddress = new Uri("https://imagegalleryfunctions.azurewebsites.net/api/");
-            _client.Timeout = TimeSpan.FromDays(1);
+            _client = new HttpClient() 
+            { 
+                BaseAddress = new Uri("https://imagegalleryfunctions.azurewebsites.net/api/"),
+                Timeout = TimeSpan.FromDays(1)
+            };
         }
 
         public async Task<HttpResponseMessage> PostCreateDZIAsync(IFileListEntry image, string category, int tileSize, int overlap)
@@ -31,8 +33,8 @@ namespace BlazorUI.Services.APIClients
 
             return await _client.PostAsync(
                 string.Format("BeginCreateDZI/{0}/{1}?tilesize={2}&overlap={3}",
-                    HttpUtility.UrlEncode(category),
-                    HttpUtility.UrlEncode(image.Name),
+                    category,
+                    image.Name,
                     tileSize,
                     overlap), 
                 content);
@@ -42,7 +44,7 @@ namespace BlazorUI.Services.APIClients
             string category, string imageName, W3CWebAnnotationModel[] annotations)
         {
             return await _client.PostAsJsonAsync(
-                $"SetAnnotaions/{HttpUtility.UrlEncode(category)}/{HttpUtility.UrlEncode(imageName)}", 
+                $"SetAnnotations/{category}/{imageName}", 
                 annotations);
         }
     }

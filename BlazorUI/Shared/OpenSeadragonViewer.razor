@@ -17,6 +17,8 @@
     public string[] AnnotationPaths { get; set; }
     [Parameter]
     public AnnotationHelper.OnAnnotationChanged OnAnnotationsChanged { get; set; }
+    [Parameter]
+    public AnnotationHelper.OnPageChanged OnPageChanged { get; set; }
 
     public OpenSeadragonClient OpenSeadragonClient { get { return OSDClient; } }
 
@@ -29,6 +31,7 @@
         if (firstRender)
         {
             OSDClient.AnnotationsChanged += OnAnnotationsChanged;
+            OSDClient.PageChanged += OnPageChanged;
 
             await OSDClient.InitAsync(ViewerReference, TileSourcePaths, AnnotationPaths);
         }

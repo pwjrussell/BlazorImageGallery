@@ -4,42 +4,95 @@ body {
     background-color: #f1e3ea;
 }
 
-.dropdown {
-    position: relative;
-    display: inline-block;
+.fixed-bottom-right {
+    position: fixed;
+    bottom: 0;
+    right: 0;
 }
 
+.admin-link {
+    background-color: #372d38;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+}
+
+.admin-link:hover {
+    background-color: #553b54;
+}
+
+.override-button-default {
+    font-size: 100%;
+    font-family: inherit;
+    border: 0;
+    padding: 0;
+}
+
+.osd-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+/* Dropdown Button */
+.dropbtn {
+    background-color: #372d38;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown-fixed-bottom-left {
+    position: fixed;
+    display: inline-block;
+    bottom: 0;
+    left: 0;
+}
+
+/* Dropdown Content (Hidden by Default) */
 .dropdown-content {
     display: none;
-    position: absolute;
+    position: relative;
+    bottom: 0;
+    left: 0;
+    background-color: #f1f1f1;
+    min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
-.dropdown:hover > .dropdown-content {
+    /* Links inside the dropdown */
+    .dropdown-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+    }
+
+        /* Change color of dropdown links on hover */
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
+
+/* Show the dropdown menu on hover */
+.dropdown-fixed-bottom-left:hover .dropdown-content {
     display: block;
+}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropbtn:hover {
+    background-color: #3e8e41;
 }
 
 .full-page-container {
     width: 100vw;
     height: 100vh;
     overflow-x: hidden;
-}
-
-.sidebar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 300px;
-}
-
-.osd-display {
-    position: absolute;
-    top: 0;
-    left: 300px;
-    height: 100vh;
-    width: calc(100vw - 300px);
 }
 
 .loading-screen {
