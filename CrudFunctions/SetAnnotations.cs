@@ -31,16 +31,12 @@ namespace CrudFunctions
                     throw new ArgumentException("The image name or category contained a slash.");
                 }
 
-                SetAnnotationRequestModel request = JsonConvert.DeserializeObject<SetAnnotationRequestModel>(
+                W3CWebAnnotationModel[] annotations = JsonConvert.DeserializeObject<W3CWebAnnotationModel[]>(
                     await req.ReadAsStringAsync());
-
-                CloudBlockBlob pinsBlob = container.GetBlockBlobReference($"{category}/{name}/overlays.json");
-                pinsBlob.Properties.ContentType = "text/json";
-                await pinsBlob.UploadTextAsync(JsonConvert.SerializeObject(request.Pins));
 
                 CloudBlockBlob annotationsBlob = container.GetBlockBlobReference($"{category}/{name}/annotations.w3c.json");
                 annotationsBlob.Properties.ContentType = "text/json";
-                await annotationsBlob.UploadTextAsync(JsonConvert.SerializeObject(request.Annotations));
+                await annotationsBlob.UploadTextAsync(JsonConvert.SerializeObject(annotations));
 
                 return new OkResult();
             }

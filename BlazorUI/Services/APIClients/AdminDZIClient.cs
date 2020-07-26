@@ -39,15 +39,11 @@ namespace BlazorUI.Services.APIClients
         }
 
         public async Task<HttpResponseMessage> PostAnnotations(
-            string category, string imageName, PinOverlayModel[] pins = null, W3CWebAnnotationModel[] annotations = null)
+            string category, string imageName, W3CWebAnnotationModel[] annotations)
         {
-            SetAnnotationRequestModel request = new SetAnnotationRequestModel() 
-            { 
-                Pins = pins ?? new PinOverlayModel[0],
-                Annotations = annotations ?? new W3CWebAnnotationModel[0]
-            };
             return await _client.PostAsJsonAsync(
-                $"SetAnnotaions/{HttpUtility.UrlEncode(category)}/{HttpUtility.UrlEncode(imageName)}", request);
+                $"SetAnnotaions/{HttpUtility.UrlEncode(category)}/{HttpUtility.UrlEncode(imageName)}", 
+                annotations);
         }
     }
 }

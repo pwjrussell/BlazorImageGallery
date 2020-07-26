@@ -11,17 +11,25 @@ namespace BlazorUI.Services.JSInteropHelpers
     {
         public delegate Task OnAnnotationChanged(W3CWebAnnotationModel[] annotations);
         public delegate Task OnPageChanged(int newPage);
+        public delegate Task OnMouseDown(double viewportX, double viewportY);
+        public delegate Task OnMouseUp(double viewportX, double viewportY);
 
         public AnnotationHelper(
-            OnAnnotationChanged onAnnotationChangedCallback, 
-            OnPageChanged onPageChangedCallback)
+            OnAnnotationChanged onAnnotationChangedCallback = null, 
+            OnPageChanged onPageChangedCallback = null,
+            OnMouseDown onMouseDownCallback = null,
+            OnMouseUp onMouseUpCallback = null)
         {
-            OnAnnotationChangedCallback = onAnnotationChangedCallback;
-            OnPageChangedCallback = onPageChangedCallback;
+            OnAnnotationChangedCallback = onAnnotationChangedCallback ?? (async(W3CWebAnnotationModel[] annotations) => { });
+            OnPageChangedCallback = onPageChangedCallback ?? (async (int newPage) => { });
+            OnMouseDownCallback = onMouseDownCallback ?? (async (double viewportX, double viewportY) => { });
+            OnMouseUpCallback = onMouseUpCallback ?? (async (double viewportX, double viewportY) => { });
         }
 
         public OnAnnotationChanged OnAnnotationChangedCallback { get; set; }
         public OnPageChanged OnPageChangedCallback { get; set; }
+        public OnMouseDown OnMouseDownCallback { get; set; }
+        public OnMouseUp OnMouseUpCallback { get; set; }
 
         [JSInvokable]
         public async Task NotifyAnnotationsChanged(W3CWebAnnotationModel[] annotations)
@@ -32,6 +40,16 @@ namespace BlazorUI.Services.JSInteropHelpers
         public async Task NotifyPageChangedTo(int newPage)
         {
             await OnPageChangedCallback(newPage);
+        }
+        [JSInvokable]
+        public async Task NotifyMouseDown(double viewportX, double viewportY)
+        {
+            await OnMouseDownCallback(viewportX, viewportY);
+        }
+        [JSInvokable]
+        public async Task NotifyMouseUp(double viewportX, double viewportY)
+        {
+            await OnMouseUpCallback(viewportX, viewportY);
         }
     }
 }

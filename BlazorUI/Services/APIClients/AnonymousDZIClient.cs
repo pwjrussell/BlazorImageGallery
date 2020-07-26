@@ -11,7 +11,6 @@ namespace BlazorUI.Services.APIClients
         private readonly HttpClient _client;
         private readonly string _functionsBaseAddress = "https://imagegalleryfunctions.azurewebsites.net/api/";
         private readonly string _annotationFileName = "annotations.w3c.json";
-        private readonly string _overlaysFileName = "overlays.json";
 
         public AnonymousDZIClient(HttpClient client)
         {
@@ -32,18 +31,6 @@ namespace BlazorUI.Services.APIClients
             return await _client.GetFromJsonAsync<string[]>(
                 $"{_functionsBaseAddress}ListDZIDirectoryURIs?category={HttpUtility.UrlEncode(category)}");
         }
-        public async Task<PinOverlayModel[]> GetOverlaysForTileSource(string tileSourcePath)
-        {
-            try
-            {
-                string path = $"{tileSourcePath.Substring(0, tileSourcePath.LastIndexOf('/') + 1)}{_overlaysFileName}";
-                return await _client.GetFromJsonAsync<PinOverlayModel[]>(path);
-            }
-             catch
-            {
-                return new PinOverlayModel[0];
-            }
-        }
         /// <summary>
         /// Gets the path to the .xml tileSource metadata file given the path to the containing directory.
         /// </summary>
@@ -61,7 +48,7 @@ namespace BlazorUI.Services.APIClients
         /// <returns>The URI of the annotations .json file for the image in question.</returns>
         public string GetAnnotationsURIFromDirectoryURI(string directoryURI)
         {
-           return $"{directoryURI}/{_annotationFileName}";
+           return $"{directoryURI}{_annotationFileName}";
         }
     }
 }

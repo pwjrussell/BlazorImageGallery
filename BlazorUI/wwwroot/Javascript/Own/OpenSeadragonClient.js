@@ -1,6 +1,8 @@
 
 window.OpenSeadragonClient = {
     initDZI: function (viewerElement, tileSourcePaths, annotationPaths, dotnetHelper) {
+        var _this = this;
+
         this.viewer = OpenSeadragon({
             element: viewerElement,
             prefixUrl: "Javascript/dist/openseadragon-bin-2.4.2/images/",
@@ -20,7 +22,7 @@ window.OpenSeadragonClient = {
         this.anno.loadAnnotations(this.annotationPaths[0]);
         dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', this.anno.getAnnotations());
 
-        var _this = this;
+        
         this.viewer.addHandler("page", function (e) {
             for (let a of _this.anno.getAnnotations()) {
                 _this.anno.removeAnnotation(a);
@@ -40,20 +42,6 @@ window.OpenSeadragonClient = {
         this.anno.on('updateAnnotation', function (annotation, previous) {
             dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());
         });
-    },
-    updateOverlays: function () {
-        var overlays = document.getElementById("overlaysDiv").childNodes;
-        this.viewer.clearOverlays();
-        for (let o of overlays) {
-            if (o.nodeName === "SPAN") {
-                this.viewer.addOverlay({
-                    element: o,
-                    location: this.viewer.viewport.viewportToImageCoordinates(o.dataset.x, o.dataset.y),
-                    checkResize: false,
-                    placement: 'BOTTOM'
-                });
-            }
-        }
     },
     panTo: function (x, y) {
         this.viewer.viewport.panTo(new OpenSeadragon.Point(x, y));

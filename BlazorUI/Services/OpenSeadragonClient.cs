@@ -17,6 +17,8 @@ namespace BlazorUI.Services
 
         public event AnnotationHelper.OnPageChanged PageChanged;
         public event AnnotationHelper.OnAnnotationChanged AnnotationsChanged;
+        public event AnnotationHelper.OnMouseDown MouseDown;
+        public event AnnotationHelper.OnMouseUp MouseUp;
         public OpenSeadragonClient(IJSRuntime jSRuntime)
         {
             _JsRuntime = jSRuntime;
@@ -25,15 +27,11 @@ namespace BlazorUI.Services
         public async Task InitAsync(
             ElementReference viewerReference, string[] tileSourcePaths, string[] annotationPaths)
         {
-            objRef = DotNetObjectReference.Create(new AnnotationHelper(OnAnnotationsChangedCallback, OnPageChangedCallback));
+            objRef = DotNetObjectReference.Create(new AnnotationHelper(OnAnnotationsChangedCallback));
             await _JsRuntime.InvokeVoidAsync("OpenSeadragonClient.initDZI", 
                 viewerReference, tileSourcePaths, annotationPaths, objRef);
         }
 
-        public async Task UpdateOverlays()
-        {
-            await _JsRuntime.InvokeVoidAsync("OpenSeadragonClient.updateOverlays");
-        }
         public async Task PanTo(double x, double y)
         {
             await _JsRuntime.InvokeVoidAsync("OpenSeadragonClient.panTo", x, y);
@@ -41,13 +39,8 @@ namespace BlazorUI.Services
 
         private async Task OnAnnotationsChangedCallback(W3CWebAnnotationModel[] annotations)
         {
-            await AnnotationsChanged(annotations ?? new W3CWebAnnotationModel[0]);
+            await AnnotationsChanged?.Invoke(annotations ?? new W3CWebAnnotationModel[0]);
         }
-        private async Task OnPageChangedCallback(int newPage)
-        {
-            await PageChanged(newPage);
-        }
-
         public void Dispose()
         {
             objRef?.Dispose();
