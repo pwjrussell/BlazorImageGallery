@@ -12,14 +12,14 @@ namespace CrudFunctions
     {
         [FunctionName("CreateDZI")]
         public static async Task Run(
-            [BlobTrigger("staged-images/{imageName}")] CloudBlockBlob stagedImage,
+            [BlobTrigger("staged-images/{category}/{imageName}")] CloudBlockBlob stagedImage,
             [Blob("dzi-images", FileAccess.Write)] CloudBlobContainer container,
+            string category,
             string imageName,
             ILogger log)
         {
             try
             {
-                string category = stagedImage.Metadata["category"];
                 int tileSize = Convert.ToInt32(stagedImage.Metadata["tilesize"]);
                 int overlap = Convert.ToInt32(stagedImage.Metadata["overlap"]);
 

@@ -7,69 +7,65 @@
 @inject AnonymousDZIClient AnonymousClient
 @inject NavigationManager NavManager
 
-@if ((TileSourcePaths != null) && (TileSourcePaths.Length > 0))
+@if (HasInitialized)
 {
     <div class="full-page-container">
-        <div @ref="PopupReference" class="centered p-4">
-
-        </div>
+        @if (ShowPopup)
+        {
+            <div class="centered p-4">@PopupText</div>
+        }
         <div class="sidebar">
             <div class="card h-100">
                 <div class="card-header">
-                    <ul class="nav nav-tabs card-header-tabs">
-                        <li class="nav-item">
-                            <a class="nav-link @((SidebarPane == 0) ? "active" : "")" 
-                               href="#"
-                               @onclick="@(() => { SidebarPane = 0; this.StateHasChanged(); })">
-                                Info
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @((SidebarPane == 1) ? "active" : "")" 
-                               href="#"
-                               @onclick="@(() => { SidebarPane = 1; this.StateHasChanged(); })">
-                                Regions
-                            </a>
-                        </li>
-                    </ul>
+                    <button type="button">
+                        New pin
+                    </button>
+                    <button type="button">
+                        New hotspot
+                    </button>
                 </div>
                 <div class="card-body">
-                    @if (SidebarPane == 0)
-                    {
-                        <h4>Info</h4>
-                        <p>Info</p>
-                    }
-                    else if (SidebarPane == 1)
-                    {
-                        if (AnnotationsOnCurrentPage != null && AnnotationsOnCurrentPage.Length > 0)
-                        {
-                            <ul class="list-group">
+                    <div>
+                        <ul class="list-group">
+                            @if (AnnotationsOnCurrentPage != null)
+                            {
                                 @foreach (var annotation in AnnotationsOnCurrentPage)
                                 {
                                     <li class="list-group-item">
                                         <p>@annotation.Body[0].Value</p>
                                     </li>
                                 }
-                            </ul>
-                        }
-                        else
+                            }
+                        </ul>
+                    </div>
+                    <div id="overlaysDiv">
+                        @foreach (var overlay in OverlaysOnCurrentPage)
                         {
-                            <p>There are no annotations on this page.</p>
+                            <span data-x="@overlay.X"
+                                  data-y="@overlay.Y"
+                                  class="pointer-cursor">
+                                <span class="oi oi-pin" style="color:@overlay.Color;"></span>
+                            </span>
+                            <div class="border" @onclick="@(async() => { await Viewer.OpenSeadragonClient.PanTo(overlay.X, overlay.Y); })">
+                                <span class="oi oi-pin" style="color:@overlay.Color;"></span>
+                                <p>@overlay.Text</p>
+                            </div>
                         }
-                    }
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="osd-display">
-            <OpenSeadragonViewer @ref="Viewer" 
-                                 TileSourcePaths="TileSourcePaths" 
+        <div class="osd-display" @onclick="">
+            <OpenSeadragonViewer @ref="Viewer"
+                                 TileSourcePaths="TileSourcePaths"
+                                 AnnotationPaths="AnnotationPaths"
                                  OnAnnotationsChanged="OnAnnotationsChanged"
+                                 OnPageChanged="OnPageChanged"
                                  class="covers-entire-parent" />
         </div>
     </div>
 }
-
-@if (!HasInitialized)
+else
 {
     <div class="loading-screen">
         <div class="centered text-white text-center">
@@ -85,18 +81,29 @@
 
 @code {
     private string[] TileSourcePaths { get; set; }
+    private string[] AnnotationPaths { get; set; }
     private bool HasInitialized { get; set; } = false;
 
-    private ElementReference PopupReference { get; set; }
+    private bool ShowPopup { get; set; } = false;
+    private string PopupText { get; set; } = "";
+
     private OpenSeadragonViewer Viewer { get; set; }
 
     private int SidebarPane { get; set; } = 0;
     private W3CWebAnnotationModel[] AnnotationsOnCurrentPage { get; set; }
+    private PinOverlayModel[] OverlaysOnCurrentPage { get; set; }
 
     private async Task OnAnnotationsChanged(W3CWebAnnotationModel[] annotations)
     {
         AnnotationsOnCurrentPage = annotations;
         this.StateHasChanged();
+    }
+    private async Task OnPageChanged(int newPage)
+    {
+        OverlaysOnCurrentPage = await AnonymousClient.GetOverlaysForTileSource(TileSourcePaths[newPage]);
+        this.StateHasChanged();
+
+        await Viewer.OpenSeadragonClient.UpdateOverlays();
     }
 
     protected override async Task OnInitializedAsync()
@@ -112,10 +119,14 @@
         string[] DirectoryURIs = await AnonymousClient.GetDZIDirectoryURIsAsync(category);
 
         TileSourcePaths = new string[DirectoryURIs.Length];
+        AnnotationPaths = new string[DirectoryURIs.Length];
         for (int i = 0; i < DirectoryURIs.Length; i++)
         {
             TileSourcePaths[i] = AnonymousClient.GetTileSourceURIFromDirectoryURI(DirectoryURIs[i]);
+            AnnotationPaths[i] = AnonymousClient.GetAnnotationsURIFromDirectoryURI(DirectoryURIs[i]);
         }
+
+        OverlaysOnCurrentPage = await AnonymousClient.GetOverlaysForTileSource(TileSourcePaths[0]);
 
         HasInitialized = true;
     }

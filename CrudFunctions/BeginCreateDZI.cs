@@ -16,14 +16,14 @@ namespace CrudFunctions
     {
         [FunctionName("BeginCreateDZI")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "BeginCreateDZI/{name}")] HttpRequest req,
-            [Blob("staged-images/{name}", FileAccess.Write)] CloudBlockBlob image,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "BeginCreateDZI/{category}/{name}")] HttpRequest req,
+            [Blob("staged-images/{category}/{name}", FileAccess.Write)] CloudBlockBlob image,
+            string category,
             string name,
             ILogger log)
         {
             try
             {
-                string category = req.Query["category"];
                 if (name.Contains('/') || name.Contains('\\') ||
                     category.Contains('/') || category.Contains('\\'))
                 {
@@ -33,7 +33,6 @@ namespace CrudFunctions
                 int overlap = Convert.ToInt32(req.Query["overlap"]);
 
                 image.Properties.ContentType = req.ContentType;
-                image.Metadata["category"] = category;
                 image.Metadata["tilesize"] = tileSize.ToString();
                 image.Metadata["overlap"] = overlap.ToString();
 

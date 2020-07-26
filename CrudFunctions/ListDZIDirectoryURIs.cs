@@ -31,7 +31,7 @@ namespace CrudFunctions
                 }
 
                 IEnumerable directories = container
-                    .ListBlobs($"{category}/")
+                    .ListBlobs((category == null) ? "" : $"{category}/")
                     .OfType<CloudBlobDirectory>()
                     .Select(dir => dir.Uri.AbsoluteUri);
 

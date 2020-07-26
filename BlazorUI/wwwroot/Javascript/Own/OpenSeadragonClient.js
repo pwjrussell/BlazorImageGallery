@@ -27,18 +27,36 @@ window.OpenSeadragonClient = {
             }
 
             _this.anno.loadAnnotations(_this.annotationPaths[e.page]);
+            dotnetHelper.invokeMethodAsync('NotifyPageChangedTo', e.page);
             dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());
         });
 
         this.anno.on('createAnnotation', function (annotation) {
-            dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());; 
+            dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());;
         });
         this.anno.on('deleteAnnotation', function (annotation) {
-            dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations()); 
+            dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());
         });
         this.anno.on('updateAnnotation', function (annotation, previous) {
-            dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations()); 
+            dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());
         });
+    },
+    updateOverlays: function () {
+        var overlays = document.getElementById("overlaysDiv").childNodes;
+        this.viewer.clearOverlays();
+        for (let o of overlays) {
+            if (o.nodeName === "SPAN") {
+                this.viewer.addOverlay({
+                    element: o,
+                    location: this.viewer.viewport.viewportToImageCoordinates(o.dataset.x, o.dataset.y),
+                    checkResize: false,
+                    placement: 'BOTTOM'
+                });
+            }
+        }
+    },
+    panTo: function (x, y) {
+        this.viewer.viewport.panTo(new OpenSeadragon.Point(x, y));
     },
     getAnnotationsOnCurrentPage: function () {
         return this.anno.getAnnotations();

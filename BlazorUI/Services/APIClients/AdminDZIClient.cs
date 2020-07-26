@@ -1,7 +1,9 @@
 ﻿using BlazorInputFile;
+using HttpRequestModelsClassLibrary;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -28,12 +30,24 @@ namespace BlazorUI.Services.APIClients
             Console.WriteLine("Posting request");
 
             return await _client.PostAsync(
-                string.Format("BeginCreateDZI/{0}?category={1}&tilesize={2}&overlap={3}", 
+                string.Format("BeginCreateDZI/{0}/{1}?tilesize={2}&overlap={3}",
+                    HttpUtility.UrlEncode(category),
                     HttpUtility.UrlEncode(image.Name),
-                    category,
                     tileSize,
                     overlap), 
                 content);
+        }
+
+        public async Task<HttpResponseMessage> PostAnnotations(
+            string category, string imageName, PinOverlayModel[] pins = null, W3CWebAnnotationModel[] annotations = null)
+        {
+            SetAnnotationRequestModel request = new SetAnnotationRequestModel() 
+            { 
+                Pins = pins ?? new PinOverlayModel[0],
+                Annotations = annotations ?? new W3CWebAnnotationModel[0]
+            };
+            return await _client.PostAsJsonAsync(
+                $"SetAnnotaions/{HttpUtility.UrlEncode(category)}/{HttpUtility.UrlEncode(imageName)}", request);
         }
     }
 }

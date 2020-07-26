@@ -1,5 +1,6 @@
 ﻿
 @using BlazorUI.Services
+@using BlazorUI.Services.JSInteropHelpers
 @using HttpRequestModelsClassLibrary
 
 @inject IJSRuntime JSRuntime
@@ -13,7 +14,11 @@
     [Parameter]
     public string[] TileSourcePaths { get; set; }
     [Parameter]
-    public OpenSeadragonClient.OnAnnotationsChanged OnAnnotationsChanged { get; set; }
+    public string[] AnnotationPaths { get; set; }
+    [Parameter]
+    public AnnotationHelper.OnPageChanged OnPageChanged { get; set; }
+    [Parameter]
+    public AnnotationHelper.OnAnnotationChanged OnAnnotationsChanged { get; set; }
 
     public OpenSeadragonClient OpenSeadragonClient { get { return OSDClient; } }
 
@@ -25,11 +30,10 @@
 
         if (firstRender)
         {
-            string[] annotationPaths = new string[0];
+            OSDClient.PageChanged += OnPageChanged;
 
-            OSDClient.AnnotationsChanged += OnAnnotationsChanged;
-
-            await OSDClient.InitAsync(ViewerReference, TileSourcePaths, annotationPaths);
+            await OSDClient.InitAsync(ViewerReference, TileSourcePaths, AnnotationPaths);
+            await OSDClient.UpdateOverlays();
         }
     }
 }
