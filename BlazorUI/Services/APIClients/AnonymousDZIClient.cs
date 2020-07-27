@@ -28,7 +28,6 @@ namespace BlazorUI.Services.APIClients
                 return new string[0];
             }
             return await _client.GetFromJsonAsync<string[]>(
-                //$"{_functionsBaseAddress}ListDZIDirectoryURIs{((category == "") ? "" : $"?category={HttpUtility.UrlEncode(category)}")}");
                 $"ListDZIDirectoryURIs{((category == "") ? "" : $"?category={category}")}");
         }
         /// <summary>

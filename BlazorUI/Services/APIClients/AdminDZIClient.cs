@@ -44,9 +44,7 @@ namespace BlazorUI.Services.APIClients
         public async Task<HttpResponseMessage> PostAnnotations(
             string category, string imageName, W3CWebAnnotationModel[] annotations)
         {
-            return await _client.PostAsJsonAsync(
-                $"SetAnnotations/{category}/{imageName}", 
-                annotations);
+            return await _client.PostAsJsonAsync($"SetAnnotations/{category}/{imageName}", annotations);
         }
     }
 }
