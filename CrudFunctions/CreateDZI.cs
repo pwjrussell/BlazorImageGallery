@@ -5,6 +5,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Storage.Blob;
 using ImageToolsClassLibrary;
+using System.Drawing;
 
 namespace CrudFunctions
 {
@@ -20,11 +21,28 @@ namespace CrudFunctions
         {
             try
             {
-                int tileSize = Convert.ToInt32(stagedImage.Metadata["tilesize"]);
-                int overlap = Convert.ToInt32(stagedImage.Metadata["overlap"]);
+                int tileSize;
+                int overlap;
+                try
+                {
+                    tileSize = Convert.ToInt32(stagedImage.Metadata["tilesize"]);
+                    overlap = Convert.ToInt32(stagedImage.Metadata["overlap"]);
 
-                Stream imageStream = new MemoryStream();
-                await stagedImage.DownloadToStreamAsync(imageStream);
+                    if (tileSize == 0)
+                    {
+                        throw new ArgumentException("The tile size was 0.");
+                    }
+                }
+                catch (Exception e)
+                {
+                    log.LogError(e.ToString());
+                    tileSize = 512;
+                    overlap = 1;
+                }
+
+
+                Stream blobStream = await stagedImage.OpenReadAsync();
+                Bitmap imageBitmap = new Bitmap(blobStream);
 
                 string dirName = $"{category}/{imageName.Substring(0, imageName.LastIndexOf('.'))}";
 
@@ -43,7 +61,7 @@ namespace CrudFunctions
 
                 await DZIBuilder.Build(
                     imageName,
-                    imageStream,
+                    imageBitmap,
                     stagedImage.Properties.ContentType,
                     tileSize,
                     overlap,

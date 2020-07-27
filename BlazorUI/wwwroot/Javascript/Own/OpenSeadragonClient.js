@@ -7,8 +7,10 @@ window.OpenSeadragonClient = {
             element: viewerElement,
             prefixUrl: "Javascript/dist/openseadragon-bin-2.4.2/images/",
             tileSources: tileSourcePaths,
+            animationTime: 0.25,
             sequenceMode: true,
             showNavigator: true,
+            showRotationControl: true,
             ajaxWithCredentials: true
 
             //zoomInButton: 'zoomin',
@@ -28,8 +30,9 @@ window.OpenSeadragonClient = {
             locale: 'auto'
         });
 
-        this.anno.loadAnnotations(this.annotationPaths[0]);
-        dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', this.anno.getAnnotations());
+        this.anno.loadAnnotations(this.annotationPaths[0]).then(function () {
+            dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());
+        });
         
         this.viewer.addHandler("page", function (e) {
             for (let a of _this.anno.getAnnotations()) {

@@ -7,6 +7,7 @@
 @inject AdminDZIClient AdminClient
 @inject AnonymousDZIClient AnonymousClient
 @inject NavigationManager NavManager
+@inject IJSRuntime JsRuntime
 
 <div style="pointer-events:@(ShowLoadingScreen ? "none" : "auto");overflow: hidden;">
     <div class="wrapper">
@@ -20,7 +21,7 @@
                 {
                     int a = i;
                     <li>
-                        <a class="pointer-cursor" @onclick="@(() => { categoryIndex = a; })">
+                        <a class="pointer-cursor @((categoryIndex == i) ? "active" : "")" @onclick="@(() => { categoryIndex = a; })">
                             @Categories[i]
                         </a>
                         <ul class="list-unstyled" id="pageSubmenu">
@@ -83,7 +84,7 @@
                         </div>
                     </div>
                     <div class="d-inline-flex">
-                        <InputFile OnChange="OnFileselectedForDZICreation" />
+                        <InputFile OnChange="OnFileselectedForDZICreation" oninput="$('#exampleModal').modal('hide');" />
                         <div id="spinner" class="spinner-border" role="status" style="display: none;">
                             <span class="sr-only">Loading...</span>
                         </div>
@@ -129,6 +130,7 @@
         ToggleLoadingScreen();
         await AdminClient.PostCreateDZIAsync(files[0], Category, TileSize, Overlap);
         ToggleLoadingScreen();
+
     }
 
     private void ToggleLoadingScreen()

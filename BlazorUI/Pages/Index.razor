@@ -63,7 +63,7 @@
                              TileSourcePaths="TileSourcePaths"
                              AnnotationPaths="AnnotationPaths"
                              OnAnnotationsChanged="OnAnnotationsChanged"
-                             OnPageChanged="@(async(int page) => { Page = page; })"
+                             OnPageChanged="@(async (int page) => { Page = page; Console.WriteLine(Page); })"
                              class="covers-entire-parent" />
         <div class="dropdown-fixed-bottom-left">
             <button type="button" class="dropbtn override-button-default">
@@ -122,6 +122,7 @@ else
     {
         AnnotationsOnCurrentPage = annotations;
         this.StateHasChanged();
+        Console.WriteLine(AnnotationsOnCurrentPage);
     }
 
     private async Task UploadAnnotationsOnPage()

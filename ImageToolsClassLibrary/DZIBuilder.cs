@@ -16,7 +16,7 @@ namespace ImageToolsClassLibrary
         /// Builds the DZI image pyramid files and .xml metadata file in memory and passes them on to the callbacks provided.
         /// </summary>
         /// <param name="imageName">The name of the image file, including the file extension.</param>
-        /// <param name="imageStream">The stream of the image file.</param>
+        /// <param name="imageBitmap">The bitmap of the image file.</param>
         /// <param name="mimeContentType">The MIME content type of the images in the image pyramid.</param>
         /// <param name="tileSize">The side length of the square tiles (excluding overlap) in the image pyramid.</param>
         /// <param name="overlap">The overlap of the images generated in the image pyramid.</param>
@@ -25,15 +25,13 @@ namespace ImageToolsClassLibrary
         /// <returns>The task that builds the DZI image folder with the callbacks provided.</returns>
         public static async Task Build(
             string imageName,
-            Stream imageStream,
+            Bitmap imageBitmap,
             string mimeContentType,
             int tileSize,
             int overlap,
             OnTileBuilt onTileBuilt,
             OnXMLBuilt onXMLBuilt)
         {
-            Bitmap imageBitmap = new Bitmap(imageStream);
-
             new FileExtensionContentTypeProvider().TryGetContentType(imageName, out string contentType);
             if (contentType != mimeContentType)
             {
