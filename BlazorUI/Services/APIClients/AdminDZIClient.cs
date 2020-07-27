@@ -13,13 +13,9 @@ namespace BlazorUI.Services.APIClients
     {
         private readonly HttpClient _client;
 
-        public AdminDZIClient()
+        public AdminDZIClient(HttpClient client)
         {
-            _client = new HttpClient() 
-            { 
-                BaseAddress = new Uri("https://imagegalleryfunctions.azurewebsites.net/api/"),
-                Timeout = TimeSpan.FromDays(1)
-            };
+            _client = client;
         }
 
         public async Task<HttpResponseMessage> PostCreateDZIAsync(IFileListEntry image, string category, int tileSize, int overlap)

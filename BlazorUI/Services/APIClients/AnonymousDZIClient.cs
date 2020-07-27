@@ -9,7 +9,6 @@ namespace BlazorUI.Services.APIClients
     public class AnonymousDZIClient
     {
         private readonly HttpClient _client;
-        private readonly string _functionsBaseAddress = "https://imagegalleryfunctions.azurewebsites.net/api/";
         private readonly string _annotationFileName = "annotations.w3c.json";
 
         public AnonymousDZIClient(HttpClient client)
@@ -30,7 +29,7 @@ namespace BlazorUI.Services.APIClients
             }
             return await _client.GetFromJsonAsync<string[]>(
                 //$"{_functionsBaseAddress}ListDZIDirectoryURIs{((category == "") ? "" : $"?category={HttpUtility.UrlEncode(category)}")}");
-                $"{_functionsBaseAddress}ListDZIDirectoryURIs{((category == "") ? "" : $"?category={category}")}");
+                $"ListDZIDirectoryURIs{((category == "") ? "" : $"?category={category}")}");
         }
         /// <summary>
         /// Gets the path to the .xml tileSource metadata file given the path to the containing directory.

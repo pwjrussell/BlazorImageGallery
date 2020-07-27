@@ -2,7 +2,10 @@
 
 @using BlazorInputFile
 @using BlazorUI.Services.APIClients
+@using Microsoft.AspNetCore.Authorization
 @using System.Web
+
+@attribute [Authorize]
 
 @inject AdminDZIClient AdminClient
 @inject AnonymousDZIClient AnonymousClient
@@ -33,7 +36,7 @@
                                     <a class="d-inline-flex justify-content-between w-100">
                                         @ImageNames[i][j]
                                         <span class="btn btn-danger pointer-cursor"
-                                                @onclick="@(async() => { await OnDeleteButtonClicked(a, b); })">
+                                              @onclick="@(async() => { await OnDeleteButtonClicked(a, b); })">
                                             <span class="oi oi-delete"></span>
                                         </span>
                                     </a>
@@ -56,18 +59,18 @@
     </div>
     <!-- Modal -->
     <div class="modal fade"
-            id="exampleModal"
-            tabindex="-1"
-            role="dialog"
-            aria-labelledby="exampleModalLabel"
-            aria-hidden="true">
+         id="exampleModal"
+         tabindex="-1"
+         role="dialog"
+         aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">
                         Make your own
                         <a href="https://github.com/openseadragon/openseadragon/wiki/The-DZI-File-Format"
-                            target="_blank">
+                           target="_blank">
                             DZI image
                         </a>.
                     </h5>
@@ -149,7 +152,7 @@
 
     private async Task OnDeleteButtonClicked(int a, int b)
     {
-        if (await JsRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the image '{ImageNames[a][b]}' from category '{Categories[a]}'? This cannot be undone.")) 
+        if (await JsRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the image '{ImageNames[a][b]}' from category '{Categories[a]}'? This cannot be undone."))
         {
             await AdminClient.DeleteDZIAsync(Categories[a], ImageNames[a][b]);
             System.Threading.Thread.Sleep(1000);

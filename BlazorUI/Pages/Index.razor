@@ -15,50 +15,6 @@
         {
             <div class="centered p-4">@PopupText</div>
         }
-        <!--
-    <div class="osd-navbar bg-light p-4 rounded">
-        <div class="dropdown">
-            <button type="button" class="dropbtn override-button-default">
-                <span class="oi oi-pin"></span>
-            </button>
-            <div class="dropdown-content">
-                @if (AnnotationsOnCurrentPage != null)
-                {
-                    @foreach (var ann in AnnotationsOnCurrentPage)
-                    {
-                        <a class="pointer-cursor" @onclick="@(async() => { await Viewer.OpenSeadragonClient.PanTo(ann.Id); })">
-                            @((ann.Body[0].Value.Length > 50) ? ann.Body[0].Value.Substring(0, 50) : ann.Body[0].Value)
-                        </a>
-                    }
-                }
-            </div>
-        </div>
-        <div id="zoomin" title="Zoom in">
-            <span class="oi oi-zoom-in"></span>
-        </div>
-        <div id="zoomout" title="Zoom out">
-            <span class="oi oi-zoom-out"></span>
-        </div>
-        <div id="gohome" title="Go home">
-            <span class="oi oi-home"></span>
-        </div>
-        <div id="togglefullpage" title="Toggle full page">
-            <span class="oi oi-fullscreen-enter"></span>
-        </div>
-        <div id="rotateleft" title="Rotate left">
-            <span class="oi oi-action-undo"></span>
-        </div>
-        <div id="rotateright" title="Rotate right">
-            <span class="oi oi-action-redo"></span>
-        </div>
-        <div id="previous" title="Previous">
-            <span class="oi oi-arrow-left"></span>
-        </div>
-        <div id="next" title="Next">
-            <span class="oi oi-arrow-right"></span>
-        </div>
-    </div>
-    -->
         <OpenSeadragonViewer @ref="Viewer"
                              TileSourcePaths="TileSourcePaths"
                              AnnotationPaths="AnnotationPaths"
@@ -69,16 +25,20 @@
             <button type="button" class="dropbtn override-button-default">
                 <span class="oi oi-pin"></span>
             </button>
-            <button type="button" class="dropbtn override-button-default" @onclick="UploadAnnotationsOnPage">
-                <span class="oi oi-cloud-upload"></span>
-            </button>
+            <AuthorizeView>
+                <Authorized>
+                    <button type="button" class="dropbtn override-button-default" @onclick="UploadAnnotationsOnPage">
+                        <span class="oi oi-cloud-upload"></span>
+                    </button>
+                </Authorized>
+            </AuthorizeView>
             <div class="dropdown-content">
                 @if (AnnotationsOnCurrentPage != null)
                 {
                     @foreach (var ann in AnnotationsOnCurrentPage)
                     {
                         <a class="pointer-cursor" @onclick="@(async() => { await Viewer.OpenSeadragonClient.PanTo(ann.id); })">
-                            @((ann.body[0].value.Length > 50) ? ann.body[0].value.Substring(0, 50) : ann.body[0].value)
+                            @((ann.body[0].value.Length > 50) ? ann.body[0].value.Substring(0, 47) + "..." : ann.body[0].value)
                         </a>
                     }
                 }
@@ -130,6 +90,13 @@ else
         int i = TileSourcePaths[Page].LastIndexOf('/');
         await AdminClient.PostAnnotations(
             Category, TileSourcePaths[Page].Substring(i + 1, TileSourcePaths[Page].Length - i - 5), AnnotationsOnCurrentPage);
+        ShowPopup = true;
+        PopupText = "The annotations have been saved.";
+        this.StateHasChanged();
+        System.Threading.Thread.Sleep(2000);
+        ShowPopup = false;
+        PopupText = "";
+        this.StateHasChanged();
     }
 
     protected override async Task OnInitializedAsync()
