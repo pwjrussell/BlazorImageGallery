@@ -1,5 +1,21 @@
 ﻿@inherits LayoutComponentBase
 
-<div>
+@using BlazorUI.Services
+
+@inject UIService UIService
+
+<div class="full-page-container" style="background-color:@((UIService.NightMode) ? "#404040;" : "white")">
     @Body
 </div>
+<div class="fixed-bottom-right">
+    <a class="dropbtn override-button-default text-white pointer-cursor">
+        <span class="oi oi-sun" @onmousedown="@(() => { UIService.ToggleNightMode(); })"></span>
+    </a>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+}

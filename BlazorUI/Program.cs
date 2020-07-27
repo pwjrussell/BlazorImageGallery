@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components;
 using BlazorUI.Services.AuthorizationMessageHandlers;
+using Blazored.LocalStorage;
 
 namespace BlazorUI
 {
@@ -17,6 +18,9 @@ namespace BlazorUI
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
+
+            builder.Services.AddBlazoredLocalStorage();
+            builder.Services.AddScoped<UIService>();
 
             builder.Services.AddTransient(options => {
                 return new AuthorizedAuthorizationMessageHandler(

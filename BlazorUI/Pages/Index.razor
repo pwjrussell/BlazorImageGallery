@@ -1,5 +1,6 @@
 ﻿@page "/"
 
+@using BlazorUI.Services
 @using BlazorUI.Services.APIClients
 @using HttpRequestModelsClassLibrary
 @using Microsoft.AspNetCore.WebUtilities
@@ -10,41 +11,41 @@
 
 @if (HasInitialized)
 {
-    <div class="full-page-container">
-        @if (ShowPopup)
-        {
-            <div class="centered p-4">@PopupText</div>
-        }
-        <OpenSeadragonViewer @ref="Viewer"
-                             TileSourcePaths="TileSourcePaths"
-                             AnnotationPaths="AnnotationPaths"
-                             OnAnnotationsChanged="OnAnnotationsChanged"
-                             OnPageChanged="@(async (int page) => { Page = page; })"
-                             class="covers-entire-parent" />
-        <div class="dropdown-fixed-bottom-left">
-            <button type="button" class="dropbtn override-button-default">
-                <span class="oi oi-pin"></span>
-            </button>
-            <AuthorizeView>
-                <Authorized>
-                    <button type="button" class="dropbtn override-button-default" @onclick="UploadAnnotationsOnPage">
-                        <span class="oi oi-cloud-upload"></span>
-                    </button>
-                </Authorized>
-            </AuthorizeView>
-            <div class="dropdown-content">
-                @if (AnnotationsOnCurrentPage != null)
+    @if (ShowPopup)
+    {
+        <div class="centered p-4">@PopupText</div>
+    }
+    <OpenSeadragonViewer @ref="Viewer"
+                            TileSourcePaths="TileSourcePaths"
+                            AnnotationPaths="AnnotationPaths"
+                            OnAnnotationsChanged="OnAnnotationsChanged"
+                            OnPageChanged="@(async (int page) => { Page = page; })"
+                            class="covers-entire-parent" />
+    <div class="dropdown-fixed-bottom-left">
+        <button type="button" class="dropbtn override-button-default">
+            <span class="oi oi-pin"></span>
+        </button>
+        <AuthorizeView>
+            <Authorized>
+                <button type="button" class="dropbtn override-button-default" @onclick="UploadAnnotationsOnPage">
+                    <span class="oi oi-cloud-upload"></span>
+                </button>
+            </Authorized>
+        </AuthorizeView>
+        <div class="dropdown-content">
+            @if (AnnotationsOnCurrentPage != null)
+            {
+                @foreach (var ann in AnnotationsOnCurrentPage)
                 {
-                    @foreach (var ann in AnnotationsOnCurrentPage)
-                    {
-                        <a class="pointer-cursor" @onclick="@(async() => { await Viewer.OpenSeadragonClient.PanTo(ann.id); })">
-                            @((ann.body[0].value.Length > 50) ? ann.body[0].value.Substring(0, 47) + "..." : ann.body[0].value)
-                        </a>
-                    }
+                    <a class="pointer-cursor" @onclick="@(async() => { await Viewer.OpenSeadragonClient.PanTo(ann.id); })">
+                        @((ann.body[0].value.Length > 50) ? ann.body[0].value.Substring(0, 47) + "..." : ann.body[0].value)
+                    </a>
                 }
-            </div>
+            }
         </div>
-        <a href="/admin" class="dropbtn override-button-default fixed-bottom-right">
+    </div>
+    <div class="fixed-bottom-right" style="margin-right:50px;">
+        <a href="/admin" class="dropbtn override-button-default">
             <span class="oi oi-wrench"></span>
         </a>
     </div>
@@ -77,6 +78,8 @@ else
     private OpenSeadragonViewer Viewer { get; set; }
 
     private W3CWebAnnotationModel[] AnnotationsOnCurrentPage { get; set; }
+
+    private bool NightMode { get; set; } = false;
 
     private async Task OnAnnotationsChanged(W3CWebAnnotationModel[] annotations)
     {
@@ -121,7 +124,6 @@ else
             TileSourcePaths[i] = AnonymousClient.GetTileSourceURIFromDirectoryURI(DirectoryURIs[i]);
             AnnotationPaths[i] = AnonymousClient.GetAnnotationsURIFromDirectoryURI(DirectoryURIs[i]);
         }
-
         HasInitialized = true;
     }
 }
