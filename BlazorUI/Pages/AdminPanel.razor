@@ -15,6 +15,7 @@
         <nav id="sidebar">
             <div class="sidebar-header">
                 <h3>Admin Panel</h3>
+                <span class="oi oi-loop-circular" @onclick="UpdateInfo"></span>
             </div>
             <ul class="list-unstyled components">
                 @for (int i = 0; i < Categories.Length; i++)
@@ -27,8 +28,15 @@
                         <ul class="list-unstyled" id="pageSubmenu">
                             @for (int j = 0; j < ImageNames[i].Length; j++)
                             {
+                                int b = j;
                                 <li>
-                                    <a>@ImageNames[i][j]</a>
+                                    <a class="d-inline-flex justify-content-between w-100">
+                                        @ImageNames[i][j]
+                                        <span class="btn btn-danger pointer-cursor"
+                                                @onclick="@(async() => { await OnDeleteButtonClicked(a, b); })">
+                                            <span class="oi oi-delete"></span>
+                                        </span>
+                                    </a>
                                 </li>
                             }
                         </ul>
@@ -137,6 +145,16 @@
     {
         ShowLoadingScreen = !ShowLoadingScreen;
         this.StateHasChanged();
+    }
+
+    private async Task OnDeleteButtonClicked(int a, int b)
+    {
+        if (await JsRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the image '{ImageNames[a][b]}' from category '{Categories[a]}'? This cannot be undone.")) 
+        {
+            await AdminClient.DeleteDZIAsync(Categories[a], ImageNames[a][b]);
+            System.Threading.Thread.Sleep(1000);
+            await UpdateInfo();
+        }
     }
 
     private async Task UpdateInfo()

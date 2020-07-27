@@ -32,7 +32,7 @@ namespace CrudFunctions
                 }
 
                 CloudBlockBlob[] blobs = container
-                    .ListBlobs($"{category}/{name}/")
+                    .ListBlobs($"{category}/{name}/", true)
                     .OfType<CloudBlockBlob>().ToArray();
 
                 foreach (CloudBlockBlob blob in blobs)

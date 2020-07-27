@@ -136,6 +136,25 @@ ul ul a {
     left: 0;
 }
 
+.drop-right {
+}
+
+    .drop-right .drop-right-content {
+        visibility: hidden;
+        position: absolute;
+        top: -5px;
+        left: 105%;
+        background-color: #e2e2e2;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        padding: 12px 16px;
+        z-index: 1;
+    }
+
+    .drop-right:hover .drop-right-content {
+        visibility: visible;
+    }
+
 /* Dropdown Button */
 .dropbtn {
     background-color: #372d38;
