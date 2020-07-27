@@ -5,6 +5,7 @@
 
 @inject IJSRuntime JSRuntime
 @inject OpenSeadragonClient OSDClient
+@inject AuthenticationStateProvider AuthStateProvider
 
 <div @ref="ViewerReference" @attributes="UnmatchedParameters"></div>
 
@@ -33,7 +34,9 @@
             OSDClient.AnnotationsChanged += OnAnnotationsChanged;
             OSDClient.PageChanged += OnPageChanged;
 
-            await OSDClient.InitAsync(ViewerReference, TileSourcePaths, AnnotationPaths);
+            AuthenticationState authState = await AuthStateProvider.GetAuthenticationStateAsync();
+
+            await OSDClient.InitAsync(ViewerReference, TileSourcePaths, AnnotationPaths, !authState.User.Identity.IsAuthenticated);
         }
     }
 }

@@ -10,13 +10,22 @@ using Newtonsoft.Json;
 using Microsoft.Azure.Storage.Blob;
 using HttpRequestModelsClassLibrary;
 using System.Web.Http;
+using System.Security.Claims;
+using CrudFunctions.Services;
 
 namespace CrudFunctions
 {
-    public static class SetAnnotations
+    public class SetAnnotations
     {
+        private readonly AADJwtService _JwtService;
+
+        public SetAnnotations(AADJwtService jwtService)
+        {
+            _JwtService = jwtService;
+        }
+
         [FunctionName("SetAnnotations")]
-        public static async Task<IActionResult> Run(
+        public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "SetAnnotations/{category}/{name}")] HttpRequest req,
             [Blob("dzi-images", FileAccess.Write)] CloudBlobContainer container,
             string category,
@@ -25,6 +34,21 @@ namespace CrudFunctions
         {
             try
             {
+                try
+                {
+                    ClaimsPrincipal principal = await _JwtService.GetClaimsPrincipalAsync(req);
+
+                    if (!principal.Identity.IsAuthenticated)
+                    {
+                        return new UnauthorizedResult();
+                    }
+                }
+                catch (Exception e)
+                {
+                    log.LogError(e.ToString());
+                    return new UnauthorizedResult();
+                }
+
                 if (name.Contains('/') || name.Contains('\\') ||
                     category.Contains('/') || category.Contains('\\'))
                 {

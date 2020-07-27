@@ -23,11 +23,11 @@ namespace BlazorUI.Services
         }
 
         public async Task InitAsync(
-            ElementReference viewerReference, string[] tileSourcePaths, string[] annotationPaths)
+            ElementReference viewerReference, string[] tileSourcePaths, string[] annotationPaths, bool isReadonly)
         {
             objRef = DotNetObjectReference.Create(new AnnotationHelper(OnAnnotationsChangedCallback, OnPageChangedCallback));
             await _JsRuntime.InvokeVoidAsync("OpenSeadragonClient.initDZI", 
-                viewerReference, tileSourcePaths, annotationPaths, objRef);
+                viewerReference, tileSourcePaths, annotationPaths, isReadonly, objRef);
         }
 
         public async Task PanTo(double x, double y)

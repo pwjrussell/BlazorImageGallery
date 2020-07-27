@@ -1,6 +1,6 @@
 
 window.OpenSeadragonClient = {
-    initDZI: function (viewerElement, tileSourcePaths, annotationPaths, dotnetHelper) {
+    initDZI: function (viewerElement, tileSourcePaths, annotationPaths, isReadonly, dotnetHelper) {
         var _this = this;
 
         this.viewer = OpenSeadragon({
@@ -26,7 +26,7 @@ window.OpenSeadragonClient = {
         this.annotationPaths = annotationPaths;
 
         this.anno = OpenSeadragon.Annotorious(this.viewer, {
-            readOnly: false,
+            readOnly: isReadonly,
             locale: 'auto'
         });
 

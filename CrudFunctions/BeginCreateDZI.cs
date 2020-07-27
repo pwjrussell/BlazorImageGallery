@@ -9,13 +9,22 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Microsoft.Azure.Storage.Blob;
 using System.Web.Http;
+using CrudFunctions.Services;
+using System.Security.Claims;
 
 namespace CrudFunctions
 {
-    public static class BeginCreateDZI
+    public class BeginCreateDZI
     {
+        private readonly AADJwtService _JwtService;
+
+        public BeginCreateDZI(AADJwtService jwtService)
+        {
+            _JwtService = jwtService;
+        }
+
         [FunctionName("BeginCreateDZI")]
-        public static async Task<IActionResult> Run(
+        public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "BeginCreateDZI/{category}/{name}")] HttpRequest req,
             [Blob("staged-images/{category}/{name}", FileAccess.Write)] CloudBlockBlob image,
             string category,
@@ -24,6 +33,21 @@ namespace CrudFunctions
         {
             try
             {
+                try
+                {
+                    ClaimsPrincipal principal = await _JwtService.GetClaimsPrincipalAsync(req);
+
+                    if (!principal.Identity.IsAuthenticated)
+                    {
+                        return new UnauthorizedResult();
+                    }
+                }
+                catch (Exception e)
+                {
+                    log.LogError(e.ToString());
+                    return new UnauthorizedResult();
+                }
+
                 if (name.Contains('/') || name.Contains('\\') ||
                     category.Contains('/') || category.Contains('\\'))
                 {

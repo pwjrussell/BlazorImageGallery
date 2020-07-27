@@ -10,13 +10,22 @@ using Newtonsoft.Json;
 using Microsoft.Azure.Storage.Blob;
 using System.Web.Http;
 using System.Linq;
+using CrudFunctions.Services;
+using System.Security.Claims;
 
 namespace CrudFunctions
 {
-    public static class DeleteDZI
+    public class DeleteDZI
     {
+        private readonly AADJwtService _JwtService;
+
+        public DeleteDZI(AADJwtService jwtService)
+        {
+            _JwtService = jwtService;
+        }
+
         [FunctionName("DeleteDZI")]
-        public static async Task<IActionResult> Run(
+        public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "DeleteDZI/{category}/{name}")] HttpRequest req,
             [Blob("dzi-images", FileAccess.Write)] CloudBlobContainer container,
             string category,
@@ -25,6 +34,21 @@ namespace CrudFunctions
         {
             try
             {
+                try
+                {
+                    ClaimsPrincipal principal = await _JwtService.GetClaimsPrincipalAsync(req);
+
+                    if (!principal.Identity.IsAuthenticated)
+                    {
+                        return new UnauthorizedResult();
+                    }
+                }
+                catch (Exception e)
+                {
+                    log.LogError(e.ToString());
+                    return new UnauthorizedResult();
+                }
+
                 if (category.Contains('/') || category.Contains('\\') ||
                     name.Contains('/') || name.Contains('\\'))
                 {
