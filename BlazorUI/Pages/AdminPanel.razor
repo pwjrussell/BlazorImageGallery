@@ -68,17 +68,13 @@
                                      OnAnnotationsChanged="OnAnnotationsChanged"
                                      OnPageChanged="@(async (int page) => { PageIndex = page; })"
                                      class="covers-entire-parent" />
-                <div class="dropdown-fixed-bottom-left">
+                <div class="dropdown-fixed-bottom-left position-absolute">
                     <button type="button" class="dropbtn override-button-default">
                         <span class="oi oi-pin"></span>
                     </button>
-                    <AuthorizeView>
-                        <Authorized>
-                            <button type="button" class="dropbtn override-button-default" @onclick="UploadAnnotationsOnPage">
-                                <span class="oi oi-cloud-upload"></span>
-                            </button>
-                        </Authorized>
-                    </AuthorizeView>
+                    <button type="button" class="dropbtn override-button-default" @onclick="UploadAnnotationsOnPage">
+                        <span class="oi oi-cloud-upload"></span>
+                    </button>
                     <div class="dropdown-content">
                         @if (AnnotationsOnCurrentPage != null)
                         {
@@ -90,6 +86,11 @@
                             }
                         }
                     </div>
+                </div>
+                <div class="dropdown-fixed-bottom-left">
+                    <a class="dropbtn override-button-default" href="/?category=@Categories[CategoryIndex]">
+                        <span class="oi oi-arrow-left"></span>
+                    </a>
                 </div>
             }
             <!-- End Index.razor clone -->

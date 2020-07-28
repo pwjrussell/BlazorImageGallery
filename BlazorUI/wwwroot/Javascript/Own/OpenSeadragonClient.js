@@ -40,10 +40,13 @@ window.OpenSeadragonClient = {
             for (let a of _this.anno.getAnnotations()) {
                 _this.anno.removeAnnotation(a);
             }
-
-            _this.anno.loadAnnotations(_this.annotationPaths[e.page]);
             dotnetHelper.invokeMethodAsync('NotifyPageChangedTo', e.page);
-            dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());
+
+            _this.anno.loadAnnotations(_this.annotationPaths[e.page]).then(function () {
+                dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());
+            }, function () {
+                dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', []);
+            });
         });
 
         this.anno.on('createAnnotation', function (annotation) {
