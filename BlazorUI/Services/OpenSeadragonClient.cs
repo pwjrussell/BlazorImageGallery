@@ -29,6 +29,14 @@ namespace BlazorUI.Services
             await _JsRuntime.InvokeVoidAsync("OpenSeadragonClient.initDZI", 
                 viewerReference, tileSourcePaths, annotationPaths, isReadonly, objRef);
         }
+        public async Task<bool> GetIfViewerExists()
+        {
+            return await _JsRuntime.InvokeAsync<bool>("OpenSeadragonClient.getIfViewerExists");
+        }
+        public async Task DestroyAsync()
+        {
+            await _JsRuntime.InvokeVoidAsync("OpenSeadragonClient.destroy");
+        }
 
         public async Task PanTo(double x, double y)
         {
@@ -37,6 +45,10 @@ namespace BlazorUI.Services
         public async Task PanTo(string id)
         {
             await _JsRuntime.InvokeVoidAsync("OpenSeadragonClient.annoPanTo", id);
+        }
+        public async Task GoToPage(int index)
+        {
+            await _JsRuntime.InvokeVoidAsync("OpenSeadragonClient.goToPage", index);
         }
 
         private async Task OnAnnotationsChangedCallback(W3CWebAnnotationModel[] annotations)

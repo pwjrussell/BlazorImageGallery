@@ -7,9 +7,9 @@
 <div class="full-page-container" style="background-color:@((UIService.NightMode) ? "#404040;" : "white")">
     @Body
 </div>
-<div class="fixed-bottom-right">
+<div class="fixed-bottom-right" @onmousedown="@(() => { UIService.ToggleNightMode(); })">
     <a class="dropbtn override-button-default text-white pointer-cursor">
-        <span class="oi oi-sun" @onmousedown="@(() => { UIService.ToggleNightMode(); })"></span>
+        <span class="oi oi-sun"></span>
     </a>
 </div>
 

@@ -25,6 +25,17 @@
 
     private ElementReference ViewerReference { get; set; }
 
+    public async Task UpdateAsync()
+    {
+        if (await OSDClient.GetIfViewerExists())
+        {
+            await OSDClient.DestroyAsync();
+        }
+
+        AuthenticationState authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        await OSDClient.InitAsync(ViewerReference, TileSourcePaths, AnnotationPaths, !authState.User.Identity.IsAuthenticated);
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await base.OnAfterRenderAsync(firstRender);
@@ -34,9 +45,7 @@
             OSDClient.AnnotationsChanged += OnAnnotationsChanged;
             OSDClient.PageChanged += OnPageChanged;
 
-            AuthenticationState authState = await AuthStateProvider.GetAuthenticationStateAsync();
-
-            await OSDClient.InitAsync(ViewerReference, TileSourcePaths, AnnotationPaths, !authState.User.Identity.IsAuthenticated);
+            await UpdateAsync();
         }
     }
 }

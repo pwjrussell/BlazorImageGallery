@@ -19,7 +19,7 @@
                             TileSourcePaths="TileSourcePaths"
                             AnnotationPaths="AnnotationPaths"
                             OnAnnotationsChanged="OnAnnotationsChanged"
-                            OnPageChanged="@(async (int page) => { Page = page; })"
+                            OnPageChanged="@(async (int page) => { PageIndex = page; })"
                             class="covers-entire-parent" />
     <div class="dropdown-fixed-bottom-left">
         <button type="button" class="dropbtn override-button-default">
@@ -65,8 +65,8 @@ else
 }
 
 @code {
-    private string Category { get; set; }
-    private int Page { get; set; } = 0;
+    public string Category { get; set; }
+    public int PageIndex { get; set; } = 0;
 
     private string[] TileSourcePaths { get; set; }
     private string[] AnnotationPaths { get; set; }
@@ -75,11 +75,16 @@ else
     private bool ShowPopup { get; set; } = false;
     private string PopupText { get; set; } = "";
 
-    private OpenSeadragonViewer Viewer { get; set; }
+    public OpenSeadragonViewer Viewer { get; set; }
 
     private W3CWebAnnotationModel[] AnnotationsOnCurrentPage { get; set; }
 
     private bool NightMode { get; set; } = false;
+
+    public async Task GoToPage(int page)
+    {
+        await Viewer.OpenSeadragonClient.GoToPage(page);
+    }
 
     private async Task OnAnnotationsChanged(W3CWebAnnotationModel[] annotations)
     {
@@ -89,16 +94,9 @@ else
 
     private async Task UploadAnnotationsOnPage()
     {
-        int i = TileSourcePaths[Page].LastIndexOf('/');
+        int i = TileSourcePaths[PageIndex].LastIndexOf('/');
         await AdminClient.PostAnnotations(
-            Category, TileSourcePaths[Page].Substring(i + 1, TileSourcePaths[Page].Length - i - 5), AnnotationsOnCurrentPage);
-        ShowPopup = true;
-        PopupText = "The annotations have been saved.";
-        this.StateHasChanged();
-        System.Threading.Thread.Sleep(2000);
-        ShowPopup = false;
-        PopupText = "";
-        this.StateHasChanged();
+            Category, TileSourcePaths[PageIndex].Substring(i + 1, TileSourcePaths[PageIndex].Length - i - 5), AnnotationsOnCurrentPage);
     }
 
     protected override async Task OnInitializedAsync()
@@ -125,5 +123,7 @@ else
             AnnotationPaths[i] = AnonymousClient.GetAnnotationsURIFromDirectoryURI(DirectoryURIs[i]);
         }
         HasInitialized = true;
+
+        Viewer?.UpdateAsync();
     }
 }

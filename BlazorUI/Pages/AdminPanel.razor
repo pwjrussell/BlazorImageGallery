@@ -1,10 +1,11 @@
 ﻿@page "/admin"
 
 @using BlazorInputFile
-@using BlazorUI.Services
 @using BlazorUI.Services.APIClients
 @using Microsoft.AspNetCore.Authorization
 @using System.Web
+@using HttpRequestModelsClassLibrary
+@using Microsoft.AspNetCore.WebUtilities
 
 @attribute [Authorize]
 
@@ -19,7 +20,7 @@
         <nav id="sidebar">
             <div class="sidebar-header">
                 <h3>Admin Panel</h3>
-                <a class="pointer-cursor" @onclick="UpdateInfo" onmousedown="var iframe = document.getElementById('ifrm'); iframe.src = iframe.src;">
+                <a class="pointer-cursor" @onclick="@(async() => { await UpdateInfo(); this.StateHasChanged(); })">
                     <span class="oi oi-loop-circular"></span>
                     Refresh
                 </a>
@@ -29,7 +30,7 @@
                 {
                     int a = i;
                     <li>
-                        <a class="pointer-cursor @((categoryIndex == i) ? "active" : "")" @onclick="@(() => { categoryIndex = a; })">
+                        <a class="pointer-cursor @((CategoryIndex == i) ? "semi-active" : "")" @onclick="@(async() => { await GoToImage(a, 0); })">
                             @Categories[i]
                         </a>
                         <ul class="list-unstyled" id="pageSubmenu">
@@ -37,9 +38,11 @@
                             {
                                 int b = j;
                                 <li>
-                                    <a class="d-inline-flex justify-content-between w-100">
-                                        @ImageNames[i][j]
-                                        <span class="btn btn-danger pointer-cursor"
+                                    <a class="d-inline-flex justify-content-between p-0 w-100 @(((CategoryIndex == i) && (PageIndex == j)) ? "active" : "")">
+                                        <span class="w-100 p-3 pointer-cursor" @onclick="@(async() => { await GoToImage(a, b); })">
+                                            @ImageNames[i][j]
+                                        </span>
+                                        <span class="btn btn-danger m-2 pointer-cursor"
                                               @onclick="@(async() => { await OnDeleteButtonClicked(a, b); })">
                                             <span class="oi oi-delete"></span>
                                         </span>
@@ -56,9 +59,40 @@
             </button>
         </nav>
         <div id="content">
-            <div class="container-fluid h-100">
-                <iframe id="ifrm" src="@($"{NavManager.BaseUri}{((Categories.Length > 0) ? $"?category={Categories[categoryIndex]}" : "")}")" style="width:90%;height:70%;margin:auto;"></iframe>
-            </div>
+            <!-- Begin Index.razor clone -->
+            @if (HasInitialized)
+            {
+                <OpenSeadragonViewer @ref="Viewer"
+                                     TileSourcePaths="TileSourcePaths[CategoryIndex]"
+                                     AnnotationPaths="AnnotationPaths[CategoryIndex]"
+                                     OnAnnotationsChanged="OnAnnotationsChanged"
+                                     OnPageChanged="@(async (int page) => { PageIndex = page; })"
+                                     class="covers-entire-parent" />
+                <div class="dropdown-fixed-bottom-left">
+                    <button type="button" class="dropbtn override-button-default">
+                        <span class="oi oi-pin"></span>
+                    </button>
+                    <AuthorizeView>
+                        <Authorized>
+                            <button type="button" class="dropbtn override-button-default" @onclick="UploadAnnotationsOnPage">
+                                <span class="oi oi-cloud-upload"></span>
+                            </button>
+                        </Authorized>
+                    </AuthorizeView>
+                    <div class="dropdown-content">
+                        @if (AnnotationsOnCurrentPage != null)
+                        {
+                            @foreach (var ann in AnnotationsOnCurrentPage)
+                            {
+                                <a class="pointer-cursor" @onclick="@(async() => { await Viewer.OpenSeadragonClient.PanTo(ann.id); })">
+                                    @((ann.body[0].value.Length > 50) ? ann.body[0].value.Substring(0, 47) + "..." : ann.body[0].value)
+                                </a>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+            <!-- End Index.razor clone -->
         </div>
     </div>
     <!-- Modal -->
@@ -134,10 +168,18 @@
     private int TileSize { get; set; } = 512;
     private int Overlap { get; set; } = 1;
 
-    private int categoryIndex { get; set; } = 0;
+    private int CategoryIndex { get; set; } = 0;
+    private int PageIndex { get; set; } = 0;
     private string[] Categories { get; set; } = new string[0];
     private string[][] ImageNames { get; set; } = new string[][] { new string[0] };
 
+    private string[][] TileSourcePaths { get; set; }
+    private string[][] AnnotationPaths { get; set; }
+
+    public OpenSeadragonViewer Viewer { get; set; }
+    private W3CWebAnnotationModel[] AnnotationsOnCurrentPage { get; set; }
+
+    private bool HasInitialized { get; set; } = false;
     private bool ShowLoadingScreen { get; set; } = false;
 
     private async Task OnFileselectedForDZICreation(IFileListEntry[] files)
@@ -164,17 +206,51 @@
         }
     }
 
+    private async Task GoToImage(int categoryIndex, int pageIndex)
+    {
+        CategoryIndex = categoryIndex;
+        PageIndex = pageIndex;
+
+        await Viewer.UpdateAsync();
+        await Viewer.OpenSeadragonClient.GoToPage(pageIndex);
+
+        this.StateHasChanged();
+    }
+
     private async Task UpdateInfo()
     {
         string[] categoryUris = await AnonymousClient.GetDZIDirectoryURIsAsync();
-        string[] imageUris;
         Categories = categoryUris.Select(u => HttpUtility.UrlDecode(u[(u[0..^1].LastIndexOf('/') + 1)..^1])).ToArray();
         ImageNames = new string[Categories.Length][];
+        TileSourcePaths = new string[Categories.Length][];
+        AnnotationPaths = new string[Categories.Length][];
         for (int i = 0; i < categoryUris.Length; i++)
         {
-            imageUris = await AnonymousClient.GetDZIDirectoryURIsAsync(Categories[i]);
-            ImageNames[i] = imageUris.Select(u => HttpUtility.UrlDecode(u[(u[0..^1].LastIndexOf('/') + 1)..^1])).ToArray();
+            string[] directoryURIs = await AnonymousClient.GetDZIDirectoryURIsAsync(Categories[i]);
+            TileSourcePaths[i] = new string[directoryURIs.Length];
+            AnnotationPaths[i] = new string[directoryURIs.Length];
+
+            for (int j = 0; j < directoryURIs.Length; j++)
+            {
+                TileSourcePaths[i][j] = AnonymousClient.GetTileSourceURIFromDirectoryURI(directoryURIs[j]);
+                AnnotationPaths[i][j] = AnonymousClient.GetAnnotationsURIFromDirectoryURI(directoryURIs[j]);
+            }
+
+            ImageNames[i] = directoryURIs.Select(u => HttpUtility.UrlDecode(u[(u[0..^1].LastIndexOf('/') + 1)..^1])).ToArray();
         }
+    }
+
+    private async Task OnAnnotationsChanged(W3CWebAnnotationModel[] annotations)
+    {
+        AnnotationsOnCurrentPage = annotations;
+        this.StateHasChanged();
+    }
+
+    private async Task UploadAnnotationsOnPage()
+    {
+        int i = TileSourcePaths[CategoryIndex][PageIndex].LastIndexOf('/');
+        await AdminClient.PostAnnotations(
+            Categories[CategoryIndex], ImageNames[CategoryIndex][PageIndex], AnnotationsOnCurrentPage);
     }
 
     protected override async Task OnInitializedAsync()
@@ -182,5 +258,8 @@
         await base.OnInitializedAsync();
 
         await UpdateInfo();
+
+        HasInitialized = true;
+        Viewer?.UpdateAsync();
     }
 }

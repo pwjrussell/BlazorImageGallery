@@ -32,6 +32,8 @@ window.OpenSeadragonClient = {
 
         this.anno.loadAnnotations(this.annotationPaths[0]).then(function () {
             dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());
+        }, function () {
+            dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', []);
         });
         
         this.viewer.addHandler("page", function (e) {
@@ -46,7 +48,6 @@ window.OpenSeadragonClient = {
 
         this.anno.on('createAnnotation', function (annotation) {
             dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());
-            console.log(_this.anno.getAnnotations());
         });
         this.anno.on('deleteAnnotation', function (annotation) {
             dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());
@@ -54,6 +55,16 @@ window.OpenSeadragonClient = {
         this.anno.on('updateAnnotation', function (annotation, previous) {
             dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());
         });
+    },
+    getIfViewerExists: function () {
+        return (this.viewer != null);
+    },
+    destroy: function () {
+        this.viewer.destroy();
+        this.viewer = null;
+
+        this.anno.destroy();
+        this.anno = null;
     },
     panTo: function (x, y) {
         this.viewer.viewport.panTo(new OpenSeadragon.Point(x, y));
@@ -63,5 +74,8 @@ window.OpenSeadragonClient = {
     },
     getAnnotationsOnCurrentPage: function () {
         return this.anno.getAnnotations();
+    },
+    goToPage: function (index) {
+        this.viewer.goToPage(index);
     }
 }

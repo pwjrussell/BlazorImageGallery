@@ -82,6 +82,10 @@ a, a:hover, a:focus {
         display: block;
         overflow-x: auto;
     }
+        #sidebar ul li a.semi-active {
+            color: #404040;
+            background: #cfcfcf;
+        }
 
         #sidebar ul li a.active {
             color: #404040;
