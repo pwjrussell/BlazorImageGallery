@@ -62,7 +62,7 @@ a, a:hover, a:focus {
     }
 
     #sidebar ul {
-        max-height: 75vh;
+        max-height: calc(100vh - 200px);
         overflow-y: auto;
     }
 
@@ -95,6 +95,10 @@ a, a:hover, a:focus {
         #sidebar ul li a:hover {
             color: #404040;
             background: #fff;
+        }
+
+        #sidebar ul li ul {
+            max-height: unset;
         }
 
     #sidebar ul li.active > a, a[aria-expanded="true"] {
