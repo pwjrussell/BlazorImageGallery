@@ -5,23 +5,32 @@ window.OpenSeadragonClient = {
 
         this.viewer = OpenSeadragon({
             element: viewerElement,
-            prefixUrl: "Javascript/dist/openseadragon-bin-2.4.2/images/",
+            // prefixUrl: "Javascript/dist/openseadragon-bin-2.4.2/images/",
             tileSources: tileSourcePaths,
             animationTime: 0.25,
             sequenceMode: true,
             showNavigator: true,
             showRotationControl: true,
-            ajaxWithCredentials: true
+            ajaxWithCredentials: true,
+            crossOriginPolicy: "Anonymous",
 
-            //zoomInButton: 'zoomin',
-            //zoomOutButton: 'zoomout',
-            //homeButton: 'gohome',
-            //fullPageButton: 'togglefullpage',
-            //rotateLeftButton: 'rotateleft',
-            //rotateRightButton: 'rotateright',
-            //previousButton: 'previous',
-            //nextButton: 'next'
+            showFullPageControl: false,
+
+            zoomInButton: 'zoomin',
+            zoomOutButton: 'zoomout',
+            homeButton: 'gohome',
+            // fullPageButton: 'togglefullpage',
+            rotateLeftButton: 'rotateleft',
+            rotateRightButton: 'rotateright',
+            previousButton: 'previous',
+            nextButton: 'next'
         });
+
+        // Screenshots
+
+        this.viewer.screenshot();
+
+        // Annotorious
 
         this.annotationPaths = annotationPaths;
 
