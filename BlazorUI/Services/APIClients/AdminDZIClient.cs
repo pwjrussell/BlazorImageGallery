@@ -1,5 +1,6 @@
 ﻿using BlazorInputFile;
 using HttpRequestModelsClassLibrary;
+using Microsoft.AspNetCore.Components;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -45,6 +46,11 @@ namespace BlazorUI.Services.APIClients
             string category, string imageName, W3CWebAnnotationModel[] annotations)
         {
             return await _client.PostAsJsonAsync($"SetAnnotations/{category}/{imageName}", annotations);
+        }
+
+        public async Task<HttpResponseMessage> PostDescriptionAsync(string category, string name, MarkupString markup)
+        {
+            return await _client.PostAsJsonAsync($"SetDescription/{category}/{name}", markup);
         }
     }
 }

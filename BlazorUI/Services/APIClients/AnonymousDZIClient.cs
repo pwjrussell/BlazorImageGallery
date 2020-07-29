@@ -1,4 +1,6 @@
 ﻿using HttpRequestModelsClassLibrary;
+using Microsoft.AspNetCore.Components;
+using System;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -9,6 +11,7 @@ namespace BlazorUI.Services.APIClients
     public class AnonymousDZIClient
     {
         private readonly HttpClient _client;
+        private readonly string _storageBaseAddress = "https://dzigallerystorage.blob.core.windows.net/";
         private readonly string _annotationFileName = "annotations.w3c.json";
 
         public AnonymousDZIClient(HttpClient client)
@@ -29,6 +32,25 @@ namespace BlazorUI.Services.APIClients
             }
             return await _client.GetFromJsonAsync<string[]>(
                 $"ListDZIDirectoryURIs{((category == "") ? "" : $"?category={category}")}");
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="category"></param>
+        /// <param name="name">The name of the file without the file extension.</param>
+        /// <returns></returns>
+        public async Task<MarkupString> GetDescriptionAsync(string category, string name)
+        {
+            try
+            {
+                HttpResponseMessage response = await _client.GetAsync($"{_storageBaseAddress}dzi-images/{category}/{name}/description.txt");
+                return (MarkupString)await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception e)
+            {
+                System.Console.WriteLine(e.ToString());
+                return new MarkupString();
+            }
         }
         /// <summary>
         /// Gets the path to the .xml tileSource metadata file given the path to the containing directory.

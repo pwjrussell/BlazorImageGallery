@@ -43,6 +43,7 @@ namespace BlazorUI
             });
 
             builder.Services.AddSingleton<OpenSeadragonClient>();
+            builder.Services.AddSingleton<QuillClient>();
 
             builder.Services.AddMsalAuthentication(options =>
             {

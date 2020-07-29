@@ -19,11 +19,13 @@
         <!-- Sidebar -->
         <nav id="sidebar">
             <div class="sidebar-header">
-                <h3>Admin Panel</h3>
-                <a class="pointer-cursor" @onclick="@(async() => { await UpdateInfo(); this.StateHasChanged(); })">
-                    <span class="oi oi-loop-circular"></span>
-                    Refresh
-                </a>
+                <h3 class="mb-4">Admin Panel</h3>
+                @if (Categories.Length > 0)
+                {
+                    <a class="dropbtn override-button-default" href="/?category=@Categories[CategoryIndex]">
+                        <span class="oi oi-arrow-left"></span> To viewer
+                    </a>
+                }
             </div>
             <ul class="list-unstyled components">
                 @for (int i = 0; i < Categories.Length; i++)
@@ -53,9 +55,13 @@
                     </li>
                 }
             </ul>
-            <!-- Button to triger modal -->
-            <button class="btn btn-light mb-4 ml-4" type="button" data-toggle="modal" data-target="#exampleModal">
+            <!-- Button to trigger DZI creation triger modal -->
+            <button class="btn btn-light mb-4 ml-4" type="button" data-toggle="modal" data-target="#dziCreationModal">
                 <span class="oi oi-plus"></span> New DZI file
+            </button>
+            <!-- Button to trigger text editor creation triger modal -->
+            <button class="btn btn-light mb-4 ml-4" type="button" data-toggle="modal" data-target="#textEditorModal">
+                <span class="oi oi-plus"></span> Edit Description
             </button>
         </nav>
         <div id="content">
@@ -63,11 +69,11 @@
             @if (HasInitialized)
             {
                 <OpenSeadragonViewer @ref="Viewer"
-                                     TileSourcePaths="TileSourcePaths[CategoryIndex]"
-                                     AnnotationPaths="AnnotationPaths[CategoryIndex]"
-                                     OnAnnotationsChanged="OnAnnotationsChanged"
-                                     OnPageChanged="@(async (int page) => { PageIndex = page; })"
-                                     class="covers-entire-parent" />
+                                        TileSourcePaths="TileSourcePaths[CategoryIndex]"
+                                        AnnotationPaths="AnnotationPaths[CategoryIndex]"
+                                        OnAnnotationsChanged="OnAnnotationsChanged"
+                                        OnPageChanged="@(async (int page) => { PageIndex = page; })"
+                                        class="covers-entire-parent" />
                 <div class="dropdown-fixed-bottom-left position-absolute">
                     <button type="button" class="dropbtn override-button-default">
                         <span class="oi oi-pin"></span>
@@ -87,29 +93,24 @@
                         }
                     </div>
                 </div>
-                <div class="dropdown-fixed-bottom-left">
-                    <a class="dropbtn override-button-default" href="/?category=@Categories[CategoryIndex]">
-                        <span class="oi oi-arrow-left"></span>
-                    </a>
-                </div>
             }
             <!-- End Index.razor clone -->
         </div>
     </div>
-    <!-- Modal -->
+    <!-- DZI creation modal -->
     <div class="modal fade"
-         id="exampleModal"
-         tabindex="-1"
-         role="dialog"
-         aria-labelledby="exampleModalLabel"
-         aria-hidden="true">
+            id="dziCreationModal"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">
+                    <h5 class="modal-title" id="dziCreationModalLabel">
                         Make your own
                         <a href="https://github.com/openseadragon/openseadragon/wiki/The-DZI-File-Format"
-                           target="_blank">
+                            target="_blank">
                             DZI image
                         </a>.
                     </h5>
@@ -147,6 +148,40 @@
             </div>
         </div>
     </div>
+    <!-- Text editor modal -->
+    <div class="modal fade"
+            id="textEditorModal"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="textEditorModalLabel">
+                        Info
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                @if (Descriptions != null)
+                {
+                    <div class="modal-body">
+                        <HTMLEditor @ref="Editor" Content="Descriptions[CategoryIndex][PageIndex]" />
+                        <button class="btn btn-primary"
+                                type="button"
+                                @onclick="PostDescription">
+                            Save Description
+                        </button>
+                    </div>
+                }
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @if (ShowLoadingScreen)
@@ -177,11 +212,21 @@
     private string[][] TileSourcePaths { get; set; }
     private string[][] AnnotationPaths { get; set; }
 
-    public OpenSeadragonViewer Viewer { get; set; }
+    private MarkupString[][] Descriptions { get; set; }
+
+    private OpenSeadragonViewer Viewer { get; set; }
+    private HTMLEditor Editor { get; set; }
     private W3CWebAnnotationModel[] AnnotationsOnCurrentPage { get; set; }
 
     private bool HasInitialized { get; set; } = false;
     private bool ShowLoadingScreen { get; set; } = false;
+
+    private async Task PostDescription()
+    {
+        Descriptions[CategoryIndex][PageIndex] = await Editor.GetInnerHTML();
+        await AdminClient.PostDescriptionAsync(
+            Categories[CategoryIndex], ImageNames[CategoryIndex][PageIndex], Descriptions[CategoryIndex][PageIndex]);
+    }
 
     private async Task OnFileselectedForDZICreation(IFileListEntry[] files)
     {
@@ -225,19 +270,23 @@
         ImageNames = new string[Categories.Length][];
         TileSourcePaths = new string[Categories.Length][];
         AnnotationPaths = new string[Categories.Length][];
+        Descriptions = new MarkupString[Categories.Length][];
         for (int i = 0; i < categoryUris.Length; i++)
         {
             string[] directoryURIs = await AnonymousClient.GetDZIDirectoryURIsAsync(Categories[i]);
             TileSourcePaths[i] = new string[directoryURIs.Length];
             AnnotationPaths[i] = new string[directoryURIs.Length];
+            Descriptions[i] = new MarkupString[directoryURIs.Length];
+
+            ImageNames[i] = directoryURIs.Select(u => HttpUtility.UrlDecode(u[(u[0..^1].LastIndexOf('/') + 1)..^1])).ToArray();
 
             for (int j = 0; j < directoryURIs.Length; j++)
             {
                 TileSourcePaths[i][j] = AnonymousClient.GetTileSourceURIFromDirectoryURI(directoryURIs[j]);
                 AnnotationPaths[i][j] = AnonymousClient.GetAnnotationsURIFromDirectoryURI(directoryURIs[j]);
-            }
 
-            ImageNames[i] = directoryURIs.Select(u => HttpUtility.UrlDecode(u[(u[0..^1].LastIndexOf('/') + 1)..^1])).ToArray();
+                Descriptions[i][j] = await AnonymousClient.GetDescriptionAsync(Categories[i], ImageNames[i][j]);
+            }
         }
     }
 

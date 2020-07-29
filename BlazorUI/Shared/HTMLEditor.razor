@@ -1,0 +1,104 @@
+﻿@using BlazorInputFile
+@using Services
+@using Services.APIClients
+
+@inject QuillClient Quill
+
+<div @ref="ToolbarReference">
+    <select class="ql-header">
+        <option selected=""></option>
+        <option value="1"></option>
+        <option value="2"></option>
+        <option value="3"></option>
+        <option value="4"></option>
+        <option value="5"></option>
+    </select>
+    <span class="ql-formats">
+        <select class="ql-font">
+            <option selected=""></option>
+            <option value="serif"></option>
+            <option value="monospace"></option>
+        </select>
+        <select class="ql-size">
+            <option value="small"></option>
+            <option selected=""></option>
+            <option value="large"></option>
+            <option value="huge"></option>
+        </select>
+    </span>
+    <span class="ql-formats">
+        <button class="ql-bold" type="button"></button>
+        <button class="ql-italic" type="button"></button>
+        <button class="ql-underline" type="button"></button>
+        <button class="ql-strike" type="button"></button>
+    </span>
+    <span class="ql-formats">
+        <select class="ql-color"></select>
+        <select class="ql-background"></select>
+    </span>
+    <span class="ql-formats">
+        <button class="ql-script" value="sub" type="button"></button>
+        <button class="ql-script" value="super" type="button"></button>
+    </span>
+    <span class="ql-formats">
+        <button class="ql-code-block" type="button"></button>
+    </span>
+    <span class="ql-formats">
+        <button class="ql-list" value="ordered" type="button"></button>
+        <button class="ql-list" value="bullet" type="button"></button>
+        <button class="ql-indent" value="-1" type="button"></button>
+        <button class="ql-indent" value="+1" type="button"></button>
+        <select class="ql-align">
+            <option selected=""></option>
+            <option value="center"></option>
+            <option value="right"></option>
+            <option value="justify"></option>
+        </select>
+    </span>
+    <span class="ql-formats">
+        <button class="ql-clean" type="button"></button>
+    </span>
+</div>
+<div class="text-editor" @ref="EditorReference"></div>
+
+@code {
+    [Parameter]
+    public MarkupString Content { get; set; }
+    private MarkupString PreviousContent { get; set; }
+
+    private ElementReference ToolbarReference { get; set; }
+    private ElementReference EditorReference { get; set; }
+
+    public async Task<MarkupString> GetInnerHTML()
+    {
+        return await Quill.GetHTMLAsync(EditorReference);
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        PreviousContent = Content;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        if (!Content.Equals(PreviousContent))
+        {
+            PreviousContent = Content;
+            await Quill.SetHTMLAsync(EditorReference, Content);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            await Quill.InitAsync(ToolbarReference, EditorReference);
+            await Quill.SetHTMLAsync(EditorReference, Content);
+        }
+    }
+}
