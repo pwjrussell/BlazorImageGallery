@@ -49,7 +49,7 @@
         <a class="mr-1 dropbtn override-button-default" data-toggle="modal" data-target="#descriptionModal">
             <span class="oi oi-info"></span>
         </a>
-        <a href="/admin" class="dropbtn override-button-default">
+        <a href="/admin@((Category == "") ? "" : $"?category={Category}")" class="dropbtn override-button-default">
             <span class="oi oi-wrench"></span>
         </a>
     </div>

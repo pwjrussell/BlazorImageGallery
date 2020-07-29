@@ -44,12 +44,12 @@ namespace BlazorUI.Services.APIClients
             try
             {
                 HttpResponseMessage response = await _client.GetAsync($"{_storageBaseAddress}dzi-images/{category}/{name}/description.txt");
+                response.EnsureSuccessStatusCode();
                 return (MarkupString)await response.Content.ReadAsStringAsync();
             }
-            catch (Exception e)
+            catch
             {
-                System.Console.WriteLine(e.ToString());
-                return new MarkupString();
+                return new MarkupString("<p>No additional details are currently available.</p>");
             }
         }
         /// <summary>

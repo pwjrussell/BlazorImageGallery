@@ -22,7 +22,7 @@
                 <h3 class="mb-4">Admin Panel</h3>
                 @if (Categories.Length > 0)
                 {
-                    <a class="dropbtn override-button-default" href="/?category=@Categories[CategoryIndex]">
+                    <a class="dropbtn override-button-default" href="/?category=@StartingCategory">
                         <span class="oi oi-arrow-left"></span> To viewer
                     </a>
                 }
@@ -204,6 +204,8 @@
     private int TileSize { get; set; } = 512;
     private int Overlap { get; set; } = 1;
 
+    private string StartingCategory { get; set; }
+
     private int CategoryIndex { get; set; } = 0;
     private int PageIndex { get; set; } = 0;
     private string[] Categories { get; set; } = new string[0];
@@ -308,6 +310,21 @@
         await base.OnInitializedAsync();
 
         await UpdateInfo();
+
+        Uri uri = NavManager.ToAbsoluteUri(NavManager.Uri);
+        if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("category", out var category))
+        {
+            StartingCategory = category;
+            CategoryIndex = Array.IndexOf(Categories, (string)category);
+            if (CategoryIndex == -1)
+            {
+                CategoryIndex = 0;
+            }
+        }
+        else
+        {
+            StartingCategory = Categories[0];
+        }
 
         HasInitialized = true;
         Viewer?.UpdateAsync();
