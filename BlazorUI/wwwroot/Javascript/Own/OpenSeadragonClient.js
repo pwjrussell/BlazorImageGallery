@@ -14,12 +14,12 @@ window.OpenSeadragonClient = {
             ajaxWithCredentials: true,
             crossOriginPolicy: "Anonymous",
 
-            showFullPageControl: false,
+            // toolbar: 'osdToolbarDiv',
 
             zoomInButton: 'zoomin',
             zoomOutButton: 'zoomout',
             homeButton: 'gohome',
-            // fullPageButton: 'togglefullpage',
+            fullPageButton: 'togglefullpage',
             rotateLeftButton: 'rotateleft',
             rotateRightButton: 'rotateright',
             previousButton: 'previous',
