@@ -56,11 +56,14 @@
                 }
             </ul>
             <!-- Button to trigger DZI creation triger modal -->
-            <button class="btn btn-light mb-4 ml-4" type="button" data-toggle="modal" data-target="#dziCreationModal">
+            <button class="btn btn-light mb-4 ml-4" type="button" 
+                    data-toggle="modal" data-target="#dziCreationModal">
                 <span class="oi oi-plus"></span> New DZI file
             </button>
             <!-- Button to trigger text editor creation triger modal -->
-            <button class="btn btn-light mb-4 ml-4" type="button" data-toggle="modal" data-target="#textEditorModal">
+            <button class="btn btn-light mb-4 ml-4" type="button" 
+                    data-toggle="modal" data-target="#textEditorModal"
+                    @onmousedown="@(async() => { await GetDescription(CategoryIndex, PageIndex); })">
                 <span class="oi oi-plus"></span> Edit Description
             </button>
         </nav>
@@ -262,8 +265,6 @@
         await Viewer.UpdateAsync();
         await Viewer.OpenSeadragonClient.GoToPage(pageIndex);
 
-        await GetDescription(CategoryIndex, PageIndex);
-
         this.StateHasChanged();
     }
 
@@ -334,8 +335,6 @@
         {
             StartingCategory = Categories[0];
         }
-
-        await GetDescription(CategoryIndex, PageIndex);
 
         HasInitialized = true;
         Viewer?.UpdateAsync();

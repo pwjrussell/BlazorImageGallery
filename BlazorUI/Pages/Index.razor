@@ -46,7 +46,9 @@
     </div>
     <div class="fixed-bottom-right text-white" style="margin-right:50px;">
         <!-- Button to trigger text editor creation triger modal -->
-        <a class="mr-1 dropbtn override-button-default" data-toggle="modal" data-target="#descriptionModal">
+        <a class="mr-1 dropbtn pointer-cursor override-button-default" 
+           data-toggle="modal" data-target="#descriptionModal" 
+           @onmousedown="@(async() => { await GetDescriptionForPage(PageIndex); })">
             <span class="oi oi-info"></span>
         </a>
         <a href="/admin@((Category == "") ? "" : $"?category={Category}")" class="dropbtn override-button-default">
@@ -124,7 +126,6 @@ else
     private async Task OnPageChanged(int page)
     {
         PageIndex = page; 
-        await GetDescriptionForPage(PageIndex); 
         this.StateHasChanged();
     }
 
@@ -168,8 +169,6 @@ else
             TileSourcePaths[i] = AnonymousClient.GetTileSourceURIFromDirectoryURI(DirectoryURIs[i]);
             AnnotationPaths[i] = AnonymousClient.GetAnnotationsURIFromDirectoryURI(DirectoryURIs[i]);
         }
-
-        await GetDescriptionForPage(0);
 
         HasInitialized = true;
         // Viewer?.UpdateAsync();
