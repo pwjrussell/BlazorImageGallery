@@ -262,7 +262,18 @@
         await Viewer.UpdateAsync();
         await Viewer.OpenSeadragonClient.GoToPage(pageIndex);
 
+        await GetDescription(CategoryIndex, PageIndex);
+
         this.StateHasChanged();
+    }
+
+    private async Task GetDescription(int categoryIndex, int pageIndex)
+    {
+        if (Descriptions[categoryIndex][pageIndex].Value == null)
+        {
+            Descriptions[categoryIndex][pageIndex] = await AnonymousClient.GetDescriptionAsync(
+                Categories[categoryIndex], ImageNames[categoryIndex][pageIndex]);
+        }
     }
 
     private async Task UpdateInfo()
@@ -286,8 +297,6 @@
             {
                 TileSourcePaths[i][j] = AnonymousClient.GetTileSourceURIFromDirectoryURI(directoryURIs[j]);
                 AnnotationPaths[i][j] = AnonymousClient.GetAnnotationsURIFromDirectoryURI(directoryURIs[j]);
-
-                Descriptions[i][j] = await AnonymousClient.GetDescriptionAsync(Categories[i], ImageNames[i][j]);
             }
         }
     }
@@ -325,6 +334,8 @@
         {
             StartingCategory = Categories[0];
         }
+
+        await GetDescription(CategoryIndex, PageIndex);
 
         HasInitialized = true;
         Viewer?.UpdateAsync();

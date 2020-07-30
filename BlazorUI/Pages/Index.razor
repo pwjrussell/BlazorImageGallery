@@ -19,7 +19,7 @@
                          TileSourcePaths="TileSourcePaths"
                          AnnotationPaths="AnnotationPaths"
                          OnAnnotationsChanged="OnAnnotationsChanged"
-                         OnPageChanged="@(async (int page) => { PageIndex = page; })"
+                         OnPageChanged="OnPageChanged"
                          class="covers-entire-parent" />
     <div class="dropdown-fixed-bottom-left">
         <button type="button" class="dropbtn override-button-default">
@@ -116,14 +116,15 @@ else
 
     private bool NightMode { get; set; } = false;
 
-    public async Task GoToPage(int page)
-    {
-        await Viewer.OpenSeadragonClient.GoToPage(page);
-    }
-
     private async Task OnAnnotationsChanged(W3CWebAnnotationModel[] annotations)
     {
         AnnotationsOnCurrentPage = annotations;
+        this.StateHasChanged();
+    }
+    private async Task OnPageChanged(int page)
+    {
+        PageIndex = page; 
+        await GetDescriptionForPage(PageIndex); 
         this.StateHasChanged();
     }
 
@@ -132,6 +133,15 @@ else
         int i = TileSourcePaths[PageIndex].LastIndexOf('/');
         await AdminClient.PostAnnotations(
             Category, TileSourcePaths[PageIndex].Substring(i + 1, TileSourcePaths[PageIndex].Length - i - 5), AnnotationsOnCurrentPage);
+    }
+
+    private async Task GetDescriptionForPage(int i)
+    {
+        if (Descriptions[i].Value == null)
+        {
+            string name = HttpUtility.UrlDecode(TileSourcePaths[i][(TileSourcePaths[i].LastIndexOf('/') + 1)..^4]);
+            Descriptions[i] = await AnonymousClient.GetDescriptionAsync(Category, name);
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -157,13 +167,11 @@ else
         {
             TileSourcePaths[i] = AnonymousClient.GetTileSourceURIFromDirectoryURI(DirectoryURIs[i]);
             AnnotationPaths[i] = AnonymousClient.GetAnnotationsURIFromDirectoryURI(DirectoryURIs[i]);
-
-            string name = HttpUtility.UrlDecode(DirectoryURIs[i][(DirectoryURIs[i][0..^1].LastIndexOf('/') + 1)..^1]);
-
-            Descriptions[i] = await AnonymousClient.GetDescriptionAsync(Category, name);
         }
-        HasInitialized = true;
 
-        Viewer?.UpdateAsync();
+        await GetDescriptionForPage(0);
+
+        HasInitialized = true;
+        // Viewer?.UpdateAsync();
     }
 }
