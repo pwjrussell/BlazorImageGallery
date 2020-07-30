@@ -46,6 +46,8 @@ window.OpenSeadragonClient = {
         });
         
         this.viewer.addHandler("page", function (e) {
+            _this.anno.selectAnnotation();
+
             for (let a of _this.anno.getAnnotations()) {
                 _this.anno.removeAnnotation(a);
             }
@@ -82,6 +84,7 @@ window.OpenSeadragonClient = {
         this.viewer.viewport.panTo(new OpenSeadragon.Point(x, y));
     },
     annoPanTo: function (id) {
+        this.anno.selectAnnotation(id);
         this.anno.panTo(id);
     },
     getAnnotationsOnCurrentPage: function () {
