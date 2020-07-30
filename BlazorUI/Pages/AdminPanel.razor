@@ -20,12 +20,15 @@
         <nav id="sidebar">
             <div class="sidebar-header">
                 <h3 class="mb-4">Admin Panel</h3>
-                @if (Categories.Length > 0)
+                @if (HasInitialized)
                 {
                     <a class="dropbtn override-button-default" href="/?category=@StartingCategory">
-                        <span class="oi oi-arrow-left"></span> To viewer
+                        <span class="oi oi-arrow-left"></span> Viewer
                     </a>
                 }
+                <a class="dropbtn override-button-default pointer-cursor" onclick="location.reload();">
+                    <span class="oi oi-reload"></span> Reload
+                </a>
             </div>
             <ul class="list-unstyled components">
                 @for (int i = 0; i < Categories.Length; i++)
@@ -127,14 +130,14 @@
                     </p>
                     <div class="form-group">
                         <div class="form-group">
-                            <label for="category" class="col-form-label">Category:</label>
-                            <input id="category" class="form-control" @bind="Category">
+                            <label class="col-form-label">Category:</label>
+                            <Searchbar Options="Categories" @bind-SearchText="Category" />
 
                             <label for="tileWidth" class="col-form-label">Tile Size:</label>
-                            <input id="tileWidth" class="form-control" @bind="TileSize">
+                            <input id="tileWidth" class="form-control" @bind="TileSize" />
 
                             <label for="overlap" class="col-form-label">Overlap:</label>
-                            <input id="overlap" class="form-control" @bind="Overlap">
+                            <input id="overlap" class="form-control" @bind="Overlap" />
                         </div>
                     </div>
                     <div class="d-inline-flex">
@@ -203,7 +206,7 @@
 
 
 @code {
-    private string Category { get; set; } = "test category";
+    private string Category { get; set; } = "";
     private int TileSize { get; set; } = 512;
     private int Overlap { get; set; } = 1;
 
@@ -251,6 +254,21 @@
     {
         if (await JsRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the image '{ImageNames[a][b]}' from category '{Categories[a]}'? This cannot be undone."))
         {
+            if ((CategoryIndex == a) && (PageIndex == b))
+            {
+                if (b == ImageNames[a].Length - 1)
+                {
+                    if (b == 0)
+                    {
+                        await GoToImage(0, 0);
+                    }
+                    else
+                    {
+                        await GoToImage(a, b - 1);
+                    }
+                }
+            }
+
             await AdminClient.DeleteDZIAsync(Categories[a], ImageNames[a][b]);
             System.Threading.Thread.Sleep(1000);
             await UpdateInfo();
@@ -259,10 +277,12 @@
 
     private async Task GoToImage(int categoryIndex, int pageIndex)
     {
-        CategoryIndex = categoryIndex;
         PageIndex = pageIndex;
-
-        await Viewer.UpdateAsync();
+        if (CategoryIndex != categoryIndex)
+        {
+            CategoryIndex = categoryIndex;
+            await Viewer.UpdateAsync();
+        }
         await Viewer.OpenSeadragonClient.GoToPage(pageIndex);
 
         this.StateHasChanged();
@@ -318,9 +338,7 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-
         await UpdateInfo();
-
         Uri uri = NavManager.ToAbsoluteUri(NavManager.Uri);
         if (QueryHelpers.ParseQuery(uri.Query).TryGetValue("category", out var category))
         {
@@ -335,7 +353,6 @@
         {
             StartingCategory = Categories[0];
         }
-
         HasInitialized = true;
         Viewer?.UpdateAsync();
     }

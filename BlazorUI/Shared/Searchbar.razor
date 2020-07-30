@@ -1,0 +1,52 @@
+﻿
+<div>
+    <div class="input-group">
+        <input class="form-control @(ResultsAreDisplayed ? "rounding-bottom-0 border-bottom-0" : "") border"
+                type="text"
+                placeholder="..."
+                @bind="SearchText"
+                @bind:event="oninput" />
+    </div>
+
+    @if (ResultsAreDisplayed)
+    {
+        <ul class="search-results">
+            @foreach (string result in Results)
+            {
+                <li class="pointer-cursor" @onclick="@(() => { SearchText = result; })">
+                    <a>@result</a>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string[] Options { get; set; }
+
+    private string _searchText;
+    [Parameter]
+    public string SearchText
+    {
+        get { return _searchText; }
+        set { if (value != _searchText) { _searchText = value; SearchTextChanged.InvokeAsync(value); } }
+    }
+    [Parameter]
+    public EventCallback<string> SearchTextChanged { get; set; }
+
+    private IEnumerable<string> Results
+    {
+        get
+        {
+            return from option in Options
+                   where
+                   option.Contains(SearchText ?? "", StringComparison.InvariantCultureIgnoreCase)
+                   select option;
+        }
+    }
+    private bool ResultsAreDisplayed
+    {
+        get { return !string.IsNullOrEmpty(SearchText); }
+    }
+}
