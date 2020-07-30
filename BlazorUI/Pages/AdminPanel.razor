@@ -331,7 +331,7 @@
     private async Task UploadAnnotationsOnPage()
     {
         int i = TileSourcePaths[CategoryIndex][PageIndex].LastIndexOf('/');
-        await AdminClient.PostAnnotations(
+        await AdminClient.PostAnnotationsAsync(
             Categories[CategoryIndex], ImageNames[CategoryIndex][PageIndex], AnnotationsOnCurrentPage);
     }
 

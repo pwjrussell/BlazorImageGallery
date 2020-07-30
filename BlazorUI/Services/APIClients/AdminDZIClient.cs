@@ -42,7 +42,7 @@ namespace BlazorUI.Services.APIClients
             return await _client.DeleteAsync($"DeleteDZI/{category}/{name}");
         }
 
-        public async Task<HttpResponseMessage> PostAnnotations(
+        public async Task<HttpResponseMessage> PostAnnotationsAsync(
             string category, string imageName, W3CWebAnnotationModel[] annotations)
         {
             return await _client.PostAsJsonAsync($"SetAnnotations/{category}/{imageName}", annotations);

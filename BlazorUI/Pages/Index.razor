@@ -132,7 +132,7 @@ else
     private async Task UploadAnnotationsOnPage()
     {
         int i = TileSourcePaths[PageIndex].LastIndexOf('/');
-        await AdminClient.PostAnnotations(
+        await AdminClient.PostAnnotationsAsync(
             Category, TileSourcePaths[PageIndex].Substring(i + 1, TileSourcePaths[PageIndex].Length - i - 5), AnnotationsOnCurrentPage);
     }
 

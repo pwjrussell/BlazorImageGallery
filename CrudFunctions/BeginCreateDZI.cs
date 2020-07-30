@@ -11,6 +11,8 @@ using Microsoft.Azure.Storage.Blob;
 using System.Web.Http;
 using CrudFunctions.Services;
 using System.Security.Claims;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using HttpRequestModelsClassLibrary;
 
 namespace CrudFunctions
 {
@@ -27,6 +29,7 @@ namespace CrudFunctions
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "BeginCreateDZI/{category}/{name}")] HttpRequest req,
             [Blob("staged-images/{category}/{name}", FileAccess.Write)] CloudBlockBlob image,
+            [DurableClient] IDurableClient starter,
             string category,
             string name,
             ILogger log)
@@ -61,7 +64,19 @@ namespace CrudFunctions
                 image.Metadata["overlap"] = overlap.ToString();
 
                 await image.UploadFromStreamAsync(req.Body);
-                return new OkResult();
+
+                DZICreationRequest request = new DZICreationRequest()
+                {
+                    Name = name,
+                    Category = category,
+                    TileSize = tileSize,
+                    Overlap = overlap
+                };
+                string instanceId = await starter.StartNewAsync("CreateDZIOrchestrator", request);
+
+                log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
+
+                return starter.CreateCheckStatusResponse(req, instanceId);
             }
             catch (Exception e)
             {

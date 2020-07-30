@@ -1,15 +1,15 @@
-﻿using System;
+﻿using ImageToolsClassLibrary;
+using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 
 namespace HttpRequestModelsClassLibrary
 {
-    public class DZICreationRequest
+    public class TileSegmentCreationRequest
     {
         public string Name { get; set; }
         public string Category { get; set; }
-        public int TileSize { get; set; }
-        public int Overlap { get; set; }
+        public string FileExtension { get; set; }
+        public TileModel[] Tiles { get; set; }
     }
 }
