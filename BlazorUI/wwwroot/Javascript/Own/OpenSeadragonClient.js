@@ -3,6 +3,16 @@ window.OpenSeadragonClient = {
     initDZI: function (viewerElement, tileSourcePaths, annotationPaths, isReadonly, dotnetHelper) {
         var _this = this;
 
+        this.dotnetHelper = dotnetHelper;
+
+        this.showAnnotations = window.innerWidth > 1000;
+        window.onresize = function () {
+            if (_this.showAnnotations != (window.innerWidth > 1000)) {
+                _this.setDisplayAnnotations(window.innerWidth > 1000);
+            }
+            _this.showAnnotations = window.innerWidth > 1000;
+        }
+
         this.viewer = OpenSeadragon({
             element: viewerElement,
             // prefixUrl: "Javascript/dist/openseadragon-bin-2.4.2/images/",
@@ -39,25 +49,32 @@ window.OpenSeadragonClient = {
             locale: 'auto'
         });
 
-        this.anno.loadAnnotations(this.annotationPaths[0]).then(function () {
-            dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());
-        }, function () {
-            dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', []);
-        });
+        if (this.showAnnotations) {
+            this.anno.loadAnnotations(this.annotationPaths[0]).then(function () {
+                dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());
+            }, function () {
+                dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', []);
+            });
+        }
         
         this.viewer.addHandler("page", function (e) {
             _this.anno.selectAnnotation();
-
             for (let a of _this.anno.getAnnotations()) {
                 _this.anno.removeAnnotation(a);
             }
             dotnetHelper.invokeMethodAsync('NotifyPageChangedTo', e.page);
 
-            _this.anno.loadAnnotations(_this.annotationPaths[e.page]).then(function () {
-                dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());
-            }, function () {
+            if (_this.showAnnotations) {
+                _this.anno.selectAnnotation();
+
+                _this.anno.loadAnnotations(_this.annotationPaths[e.page]).then(function () {
+                    dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());
+                }, function () {
+                    dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', []);
+                });
+            } else {
                 dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', []);
-            });
+            }
         });
 
         this.anno.on('createAnnotation', function (annotation) {
@@ -92,5 +109,21 @@ window.OpenSeadragonClient = {
     },
     goToPage: function (index) {
         this.viewer.goToPage(index);
+    },
+    setDisplayAnnotations: function (displayAnnotations) {
+        if (displayAnnotations) {
+            this.anno.selectAnnotation();
+            let _this = this;
+
+            this.anno.loadAnnotations(this.annotationPaths[this.viewer.currentPage()]).then(function () {
+                _this.dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());
+            }, function () {
+                _this.dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', []);
+            });
+        } else {
+            this.anno.selectAnnotation();
+            this.anno.setAnnotations([]);
+            this.dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', []);
+        }
     }
 }

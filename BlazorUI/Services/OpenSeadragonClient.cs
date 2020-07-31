@@ -51,6 +51,11 @@ namespace BlazorUI.Services
             await _JsRuntime.InvokeVoidAsync("OpenSeadragonClient.goToPage", index);
         }
 
+        public async Task SetDisplayAnnotations(bool displayAnnotations)
+        {
+            await _JsRuntime.InvokeVoidAsync("OpenSeadragonClient.setDisplayAnnotations", displayAnnotations);
+        }
+
         private async Task OnAnnotationsChangedCallback(W3CWebAnnotationModel[] annotations)
         {
             await AnnotationsChanged?.Invoke(annotations ?? new W3CWebAnnotationModel[0]);

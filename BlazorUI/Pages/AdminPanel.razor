@@ -81,7 +81,8 @@
                                         OnPageChanged="@(async (int page) => { PageIndex = page; })"
                                         class="covers-entire-parent" />
                 <div class="dropdown-fixed-bottom-left position-absolute">
-                    <button type="button" class="dropbtn override-button-default">
+                    <button type="button" class="dropbtn override-button-default"
+                            @onclick="@(async() => { await Viewer.OpenSeadragonClient.SetDisplayAnnotations(AnnotationsOnCurrentPage.Length == 0); })">
                         <span class="oi oi-pin"></span>
                     </button>
                     <button type="button" class="dropbtn override-button-default" @onclick="UploadAnnotationsOnPage">
