@@ -40,11 +40,58 @@
                 </div>
                 <div title="Take a screenshot" class="dropbtn p-1 text-white pointer-cursor"
                      style="display:inline-block;position:relative;"
-                     onclick="OpenSeadragonClient.viewer.screenshotInstance.takeScreenshot()">
+                     onclick="window.viewer.screenshotInstance.takeScreenshot();">
                     <span class="oi oi-camera-slr"></span>
                 </div>
             </div>
         </div>
+
+        <div class="dropdown-fixed-bottom-left">
+            <button type="button" class="dropbtn override-button-default">
+                <span class="oi oi-pin"></span>
+            </button>
+            <div class="dropdown-content"></div>
+        </div>
+
+        <div class="fixed-bottom-right text-white" style="margin-right:50px;">
+            <!-- Button to trigger text editor creation triger modal -->
+            <a class="mr-1 dropbtn pointer-cursor override-button-default"
+               data-toggle="modal" data-target="#descriptionModal" onclick="getDescription(window.viewer.currentPage());">
+                <span class="oi oi-info"></span>
+            </a>
+        </div>
+
+        <!-- Description modal -->
+        <div class="modal fade"
+             id="descriptionModal"
+             tabindex="-1"
+             role="dialog"
+             aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="descriptionModalLabel">
+                            Info
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="fixed-bottom-right" onclick="toggleNightMode();">
+        <a class="dropbtn override-button-default text-white pointer-cursor">
+            <span class="oi oi-sun"></span>
+        </a>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -57,14 +104,33 @@
     <script type="text/javascript" src="Javascript/dist/annotorious-openseadragon-2.0.6/openseadragon-annotorious.min.js"></script>
     <script type="text/javascript" src="Javascript/dist/openseadragonScreenshot/openseadragonScreenshot.min.js"></script>
 
-    <script type="text/javascript" src="Javascript/Own/OpenSeadragonClient.js"></script>
-
     <script type="text/javascript">
+        function getDescription(page) {
+            getCORS(window.dirURIs[page] + "description.txt", function () {
+                document.getElementsByClassName("modal-body")[0].innerHTML = this.response;
+            });
+        }
+
+        function toggleNightMode() {
+            var nightModeEnabled = localStorage.getItem('nightMode') === "true";
+            if (nightModeEnabled) {
+                localStorage.setItem('nightMode', 'false');
+                document.getElementsByClassName('full-page-container')[0].style.cssText = "background-color: white;";
+            } else {
+                localStorage.setItem('nightMode', 'true');
+                document.getElementsByClassName('full-page-container')[0].style.cssText = "background-color: #404040;";
+            }
+        }
+        if (localStorage.getItem('nightMode') === "true") {
+            document.getElementsByClassName('full-page-container')[0].style.cssText = "background-color: #404040;";
+        } else {
+            document.getElementsByClassName('full-page-container')[0].style.cssText = "background-color: white;";
+        }
+
         function getCORS(url, success) {
             var xhr = new XMLHttpRequest();
             if (!('withCredentials' in xhr)) xhr = new XDomainRequest(); // fix IE8/9
             xhr.open('GET', url);
-            xhr.responseType = "json";
             xhr.addEventListener("load", success);
             xhr.send();
             return xhr;
@@ -80,19 +146,47 @@
             return decodeURIComponent(results[2].replace(/\+/g, ' '));
         }
 
+        function populateDropdown() {
+            var dropdn = document.getElementsByClassName("dropdown-content")[0];
+            var htmlStr = "";
+            var annotations = window.anno.getAnnotations();
+            console.log(annotations);
+            for (i = 0; i < annotations.length; i++) {
+                htmlStr += '<a class="pointer-cursor" onclick="window.anno.selectAnnotation(\'' + annotations[i].id +
+                    '\');window.anno.panTo(\'' + annotations[i].id + '\');">';
+
+                if (annotations[i].body[0].value.Length > 50) {
+                    htmlStr += annotations[i].body[0].value;
+                } else {
+                    htmlStr += annotations[i].body[0].value.substring(0, 47) + '...';
+                }
+
+                htmlStr += '</a>';
+            }
+            console.log(htmlStr);
+            dropdn.innerHTML = htmlStr;
+        }
+
         getCORS("https://dzigalleryfunctions.azurewebsites.net/api/ListDZIDirectoryURIs?category=" + getParameterByName('category'),
             function () {
-                var dirURIs = this.response;
+                window.dirURIs = JSON.parse(this.response);
+                console.log(dirURIs);
                 var tileSourcePaths = [];
+                var annotationPaths = [];
+                window.descriptions = [];
+                for (i = 0; i < window.dirURIs.length; i++) {
+                    var name = window.dirURIs[i].substring(
+                        window.dirURIs[i].substring(
+                            0, window.dirURIs[i].length - 1).lastIndexOf("/") + 1, window.dirURIs[i].length - 1);
 
-                for (i = 0; i < dirURIs.length; i++) {
-                    var name = dirURIs[i].substring(dirURIs[i].substring(0, dirURIs[i].length - 1).lastIndexOf("/") + 1, dirURIs[i].length - 1);
-
-                    tileSourcePaths.push(dirURIs[i] + name + ".xml");
+                    tileSourcePaths.push(window.dirURIs[i] + name + ".xml");
+                    annotationPaths.push(window.dirURIs[i] + "annotations.w3c.json");
+                    window.descriptions.push(null);
                 }
                 console.log(tileSourcePaths);
+                console.log(annotationPaths);
 
-                var viewer = OpenSeadragon({
+                window.viewer = OpenSeadragon({
                     element: document.getElementById("osdDiv"),
                     // prefixUrl: "Javascript/dist/openseadragon-bin-2.4.2/images/",
                     tileSources: tileSourcePaths,
@@ -117,7 +211,31 @@
 
                 // Screenshots
 
-                viewer.screenshot();
+                window.viewer.screenshot();
+
+                // Annotorious
+
+                window.anno = OpenSeadragon.Annotorious(window.viewer, {
+                    readOnly: true,
+                    locale: 'auto'
+                });
+
+                window.anno.loadAnnotations(annotationPaths[0]).then(function () {
+                    populateDropdown();
+                }, function () {
+                    populateDropdown();
+                });
+
+                window.viewer.addHandler("page", function (e) {
+                    window.anno.selectAnnotation();
+                    window.anno.setAnnotations([]);
+
+                    window.anno.loadAnnotations(annotationPaths[e.page]).then(function () {
+                        populateDropdown();
+                    }, function () {
+                        populateDropdown();
+                    });
+                });
             });
     </script>
 </body>
