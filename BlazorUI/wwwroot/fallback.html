@@ -47,7 +47,8 @@
         </div>
 
         <div class="dropdown-fixed-bottom-left">
-            <button type="button" class="dropbtn override-button-default">
+            <button type="button" class="dropbtn override-button-default"
+                    onclick="setDisplayAnnotations(!window.showAnnotations);">
                 <span class="oi oi-pin"></span>
             </button>
             <div class="dropdown-content"></div>
@@ -150,7 +151,6 @@
             var dropdn = document.getElementsByClassName("dropdown-content")[0];
             var htmlStr = "";
             var annotations = window.anno.getAnnotations();
-            console.log(annotations);
             for (i = 0; i < annotations.length; i++) {
                 htmlStr += '<a class="pointer-cursor" onclick="window.anno.selectAnnotation(\'' + annotations[i].id +
                     '\');window.anno.panTo(\'' + annotations[i].id + '\');">';
@@ -163,16 +163,31 @@
 
                 htmlStr += '</a>';
             }
-            console.log(htmlStr);
             dropdn.innerHTML = htmlStr;
+        }
+
+        function setDisplayAnnotations(displayAnnotations) {
+            window.showAnnotations = displayAnnotations;
+            if (displayAnnotations) {
+                window.anno.selectAnnotation();
+
+                window.anno.loadAnnotations(window.annotationPaths[window.viewer.currentPage]).then(function () {
+                    populateDropdown();
+                }, function () {
+                    populateDropdown();
+                });
+            } else {
+                window.anno.selectAnnotation();
+                window.anno.setAnnotations([]);
+                populateDropdown();
+            }
         }
 
         getCORS("https://dzigalleryfunctions.azurewebsites.net/api/ListDZIDirectoryURIs?category=" + getParameterByName('category'),
             function () {
                 window.dirURIs = JSON.parse(this.response);
-                console.log(dirURIs);
                 var tileSourcePaths = [];
-                var annotationPaths = [];
+                window.annotationPaths = [];
                 window.descriptions = [];
                 for (i = 0; i < window.dirURIs.length; i++) {
                     var name = window.dirURIs[i].substring(
@@ -180,14 +195,14 @@
                             0, window.dirURIs[i].length - 1).lastIndexOf("/") + 1, window.dirURIs[i].length - 1);
 
                     tileSourcePaths.push(window.dirURIs[i] + name + ".xml");
-                    annotationPaths.push(window.dirURIs[i] + "annotations.w3c.json");
+                    window.annotationPaths.push(window.dirURIs[i] + "annotations.w3c.json");
                     window.descriptions.push(null);
                 }
-                console.log(tileSourcePaths);
-                console.log(annotationPaths);
+
+                var viewerElement = document.getElementById("osdDiv");
 
                 window.viewer = OpenSeadragon({
-                    element: document.getElementById("osdDiv"),
+                    element: viewerElement,
                     // prefixUrl: "Javascript/dist/openseadragon-bin-2.4.2/images/",
                     tileSources: tileSourcePaths,
                     animationTime: 0.25,
@@ -215,12 +230,21 @@
 
                 // Annotorious
 
+                window.showAnnotations = viewerElement.offsetWidth > 1000;
+                window.addEventListener("resize", function () {
+                    if (window.showAnnotations != (viewerElement.offsetWidth > 1000)) {
+                        setDisplayAnnotations(viewerElement.offsetWidth > 1000);
+                        populateDropdown();
+                    }
+                    window.showAnnotations = viewerElement.offsetWidth > 1000;
+                });
+
                 window.anno = OpenSeadragon.Annotorious(window.viewer, {
                     readOnly: true,
                     locale: 'auto'
                 });
 
-                window.anno.loadAnnotations(annotationPaths[0]).then(function () {
+                window.anno.loadAnnotations(window.annotationPaths[0]).then(function () {
                     populateDropdown();
                 }, function () {
                     populateDropdown();
@@ -230,7 +254,7 @@
                     window.anno.selectAnnotation();
                     window.anno.setAnnotations([]);
 
-                    window.anno.loadAnnotations(annotationPaths[e.page]).then(function () {
+                    window.anno.loadAnnotations(window.annotationPaths[e.page]).then(function () {
                         populateDropdown();
                     }, function () {
                         populateDropdown();
