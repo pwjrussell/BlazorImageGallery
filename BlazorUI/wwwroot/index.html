@@ -43,7 +43,49 @@
     <script type="text/javascript" src="Javascript/Own/OpenSeadragonClient.js"></script>
     <script type="text/javascript" src="Javascript/Own/QuillClient.js"></script>
 
+    <script type="text/javascript">
+        function getParameterByName(name) {
+            var url = window.location.href;
+            name = name.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+        var supported = (function() {
+            try {
+                if (typeof WebAssembly === "object"
+                    && typeof WebAssembly.instantiate === "function") {
+                    const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+                    if (module instanceof WebAssembly.Module)
+                        return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+                }
+            } catch (e) {
+            }
+            return false;
+        })();
 
+        if (supported === false) {
+            var category = getParameterByName('category');
+            if (category === null || category === '') {
+                category = "test%20category";
+            }
+            window.location = "./fallback.html?category=" + category;
+        }
+
+        if (window.MutationObserver) {
+            var observer = new MutationObserver(function (mutationList, observer) {
+                var category = getParameterByName('category');
+                if (category === null || category === '') {
+                    category = "test%20category";
+                }
+                window.location = "./fallback.html?category=" + category;
+            });
+            observer.observe(document.getElementById("blazor-error-ui"),
+                { attributes: true, childList: false, subtree: false });
+        }
+    </script>
 </body>
 
 </html>

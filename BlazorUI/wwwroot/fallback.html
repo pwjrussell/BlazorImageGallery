@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <title>BlazorUI - Backup</title>
+    <base href="/" />
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/app.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="full-page-container">
+        <div class="covers-entire-parent">
+            <div id="osdDiv" class="covers-entire-parent"></div>
+            <div id="osdToolbarDiv" class="bg-transparent m-0" style="position:absolute;left:0;top:0;">
+                <div id="zoomin" title="Zoom in" class="dropbtn p-1 text-white pointer-cursor">
+                    <span class="oi oi-zoom-in"></span>
+                </div>
+                <div id="zoomout" title="Zoom out" class="dropbtn p-1 text-white pointer-cursor">
+                    <span class="oi oi-zoom-out"></span>
+                </div>
+                <div id="gohome" title="Go home" class="dropbtn p-1 text-white pointer-cursor">
+                    <span class="oi oi-home"></span>
+                </div>
+                <div id="togglefullpage" title="Toggle full page" class="dropbtn p-1 text-white pointer-cursor">
+                    <span class="oi oi-fullscreen-enter"></span>
+                </div>
+                <div id="rotateleft" title="Rotate left" class="dropbtn p-1 text-white pointer-cursor">
+                    <span class="oi oi-action-undo"></span>
+                </div>
+                <div id="rotateright" title="Rotate right" class="dropbtn p-1 text-white pointer-cursor">
+                    <span class="oi oi-action-redo"></span>
+                </div>
+                <div id="previous" title="Previous page" class="dropbtn p-1 text-white pointer-cursor">
+                    <span class="oi oi-arrow-left"></span>
+                </div>
+                <div id="next" title="Next page" class="dropbtn p-1 text-white pointer-cursor">
+                    <span class="oi oi-arrow-right"></span>
+                </div>
+                <div title="Take a screenshot" class="dropbtn p-1 text-white pointer-cursor"
+                     style="display:inline-block;position:relative;"
+                     onclick="OpenSeadragonClient.viewer.screenshotInstance.takeScreenshot()">
+                    <span class="oi oi-camera-slr"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+    <script type="text/javascript" src="Javascript/dist/openseadragon-bin-2.4.2/openseadragon.min.js"></script>
+    <script type="text/javascript" src="Javascript/dist/FileSaver.js-2.0.2/FileSaver.min.js"></script>
+    <script type="text/javascript" src="Javascript/dist/annotorious-openseadragon-2.0.6/openseadragon-annotorious.min.js"></script>
+    <script type="text/javascript" src="Javascript/dist/openseadragonScreenshot/openseadragonScreenshot.min.js"></script>
+
+    <script type="text/javascript" src="Javascript/Own/OpenSeadragonClient.js"></script>
+
+    <script type="text/javascript">
+        function getCORS(url, success) {
+            var xhr = new XMLHttpRequest();
+            if (!('withCredentials' in xhr)) xhr = new XDomainRequest(); // fix IE8/9
+            xhr.open('GET', url);
+            xhr.responseType = "json";
+            xhr.addEventListener("load", success);
+            xhr.send();
+            return xhr;
+        }
+
+        function getParameterByName(name) {
+            var url = window.location.href;
+            name = name.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+
+        getCORS("https://dzigalleryfunctions.azurewebsites.net/api/ListDZIDirectoryURIs?category=" + getParameterByName('category'),
+            function () {
+                var dirURIs = this.response;
+                var tileSourcePaths = [];
+
+                for (i = 0; i < dirURIs.length; i++) {
+                    var name = dirURIs[i].substring(dirURIs[i].substring(0, dirURIs[i].length - 1).lastIndexOf("/") + 1, dirURIs[i].length - 1);
+
+                    tileSourcePaths.push(dirURIs[i] + name + ".xml");
+                }
+                console.log(tileSourcePaths);
+
+                var viewer = OpenSeadragon({
+                    element: document.getElementById("osdDiv"),
+                    // prefixUrl: "Javascript/dist/openseadragon-bin-2.4.2/images/",
+                    tileSources: tileSourcePaths,
+                    animationTime: 0.25,
+                    sequenceMode: true,
+                    showNavigator: true,
+                    showRotationControl: true,
+                    ajaxWithCredentials: true,
+                    crossOriginPolicy: "Anonymous",
+
+                    // toolbar: 'osdToolbarDiv',
+
+                    zoomInButton: 'zoomin',
+                    zoomOutButton: 'zoomout',
+                    homeButton: 'gohome',
+                    fullPageButton: 'togglefullpage',
+                    rotateLeftButton: 'rotateleft',
+                    rotateRightButton: 'rotateright',
+                    previousButton: 'previous',
+                    nextButton: 'next'
+                });
+
+                // Screenshots
+
+                viewer.screenshot();
+            });
+    </script>
+</body>
+
+</html>
