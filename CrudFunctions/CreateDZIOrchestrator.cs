@@ -28,27 +28,25 @@ namespace CrudFunctions
             {
                 List<TileModel> tiles = await context.CallActivityAsync<List<TileModel>>("BuildDZITilesAndXML", request);
 
-                int numberOfTilesInSegment = 100;
-                int i = 0;
-                while ((i + 1) * numberOfTilesInSegment < tiles.Count)
+                int numberOfTilesInSegment = 500;
+                int numOfCalls = (int)Math.Ceiling((double)tiles.Count / numberOfTilesInSegment);
+                Task[] tasks = new Task[numOfCalls];
+
+                for (int i = 0; i < numOfCalls; i++)
                 {
-                    await context.CallActivityAsync("BuildDZISegment", new TileSegmentCreationRequest() 
-                    { 
+                    tasks[i] = context.CallActivityAsync("BuildDZISegment", new TileSegmentCreationRequest()
+                    {
                         Name = request.Name,
                         Category = request.Category,
                         FileExtension = request.Name.Substring(request.Name.LastIndexOf('.')),
-                        Tiles = tiles.GetRange(i * numberOfTilesInSegment, numberOfTilesInSegment).ToArray()
+                        Tiles = tiles.GetRange(
+                            i * numberOfTilesInSegment, 
+                            (i == numOfCalls - 1) ? tiles.Count - i * numberOfTilesInSegment : numberOfTilesInSegment)
+                        .ToArray()
                     });
-                    i++;
                 }
-                await context.CallActivityAsync("BuildDZISegment", new TileSegmentCreationRequest()
-                {
-                    Name = request.Name,
-                    Category = request.Category,
-                    FileExtension = request.Name.Substring(request.Name.LastIndexOf('.')),
-                    Tiles = tiles.GetRange(i * numberOfTilesInSegment, tiles.Count - i * numberOfTilesInSegment).ToArray()
-                });
 
+                await Task.WhenAll(tasks);
             }
             catch (Exception e)
             {

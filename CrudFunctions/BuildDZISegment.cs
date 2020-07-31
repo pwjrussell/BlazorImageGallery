@@ -35,17 +35,17 @@ namespace CrudFunctions
                 string dirName = $"{request.Category}/{request.Name.Substring(0, request.Name.LastIndexOf('.'))}/{request.Name.Substring(0, request.Name.LastIndexOf('.'))}_files";
                 string fileExtension = request.Name.Substring(request.Name.LastIndexOf('.'));
 
-                log.LogInformation(stagedImage.Properties.ContentType);
-
                 int level = request.Tiles[0].Level;
                 Bitmap imageBitmap;
                 Rectangle destRect;
                 ImageFormat format = DZIBuilder.GetImageFormat(stagedImage.Properties.ContentType);
 
                 using (Stream blobStream = await stagedImage.OpenReadAsync())
-                using (Bitmap sourceBitmap = new Bitmap(blobStream))
+                using (Image sourceImage = Image.FromStream(blobStream))
                 {
-                    imageBitmap = new Bitmap(sourceBitmap, request.Tiles[0].LevelWidth, request.Tiles[0].LevelHeight);
+                    imageBitmap = new Bitmap(request.Tiles[0].LevelWidth, request.Tiles[0].LevelHeight);
+                    using Graphics g = Graphics.FromImage(imageBitmap);
+                    g.DrawImage(sourceImage, 0, 0, request.Tiles[0].LevelWidth, request.Tiles[0].LevelHeight);
                 }
 
                 foreach (TileModel tile in request.Tiles)

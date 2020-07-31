@@ -1,6 +1,9 @@
 ﻿using BlazorInputFile;
 using HttpRequestModelsClassLibrary;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using Microsoft.Azure.Storage.Auth;
+using Microsoft.Azure.Storage.Blob;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -13,10 +16,13 @@ namespace BlazorUI.Services.APIClients
     public class AdminDZIClient
     {
         private readonly HttpClient _client;
+        private readonly IAccessTokenProvider _tokenProvider;
+        private readonly string _storageBaseAddress = "https://dzigallerystorage.blob.core.windows.net/";
 
-        public AdminDZIClient(HttpClient client)
+        public AdminDZIClient(HttpClient client, IAccessTokenProvider tokenProvider)
         {
             _client = client;
+            _tokenProvider = tokenProvider;
         }
 
         public async Task<HttpResponseMessage> PostCreateDZIAsync(IFileListEntry image, string category, int tileSize, int overlap)
@@ -33,8 +39,25 @@ namespace BlazorUI.Services.APIClients
                     category,
                     image.Name,
                     tileSize,
-                    overlap), 
+                    overlap),
                 content);
+
+            //var tokenResult = await _tokenProvider.RequestAccessToken(
+            //    new AccessTokenRequestOptions() 
+            //    { 
+            //        Scopes = new[] { "https://storage.azure.com/user_impersonation" }
+            //    });
+
+            //if (tokenResult.TryGetToken(out AccessToken token))
+            //{
+            //    StorageCredentials credentials = new StorageCredentials(new TokenCredential(token.Value));
+
+            //    CloudBlockBlob blob = new CloudBlockBlob(
+            //        new Uri($"{_storageBaseAddress}staged-images/{category}/{image.Name}"), credentials);
+            //    blob.Properties.ContentType = image.Type;
+
+            //    await blob.UploadFromStreamAsync(image.Data);
+            //}
         }
 
         public async Task<HttpResponseMessage> DeleteDZIAsync(string category, string name) 
