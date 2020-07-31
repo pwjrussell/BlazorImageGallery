@@ -255,24 +255,25 @@
     {
         if (await JsRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the image '{ImageNames[a][b]}' from category '{Categories[a]}'? This cannot be undone."))
         {
-            if ((CategoryIndex == a) && (PageIndex == b))
+            if ((CategoryIndex == a) && ((PageIndex == ImageNames[a].Length - 1)))
             {
-                if (b == ImageNames[a].Length - 1)
+                if (PageIndex == 0)
                 {
-                    if (b == 0)
-                    {
-                        await GoToImage(0, 0);
-                    }
-                    else
-                    {
-                        await GoToImage(a, b - 1);
-                    }
+                    await GoToImage(0, 0);
+                }
+                else
+                {
+                    await GoToImage(a, 0);
                 }
             }
-
             await AdminClient.DeleteDZIAsync(Categories[a], ImageNames[a][b]);
-            System.Threading.Thread.Sleep(1000);
+            System.Threading.Thread.Sleep(500);
             await UpdateInfo();
+            if (CategoryIndex == a)
+            {
+                await Viewer.UpdateAsync();
+                PageIndex = 0;
+            }
         }
     }
 

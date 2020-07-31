@@ -5,12 +5,12 @@ window.OpenSeadragonClient = {
 
         this.dotnetHelper = dotnetHelper;
 
-        this.showAnnotations = window.innerWidth > 1000;
+        this.showAnnotations = viewerElement.offsetWidth > 1000;
         window.onresize = function () {
-            if (_this.showAnnotations != (window.innerWidth > 1000)) {
-                _this.setDisplayAnnotations(window.innerWidth > 1000);
+            if (_this.showAnnotations != (viewerElement.offsetWidth > 1000)) {
+                _this.setDisplayAnnotations(viewerElement.offsetWidth > 1000);
             }
-            _this.showAnnotations = window.innerWidth > 1000;
+            _this.showAnnotations = viewerElement.offsetWidth > 1000;
         }
 
         this.viewer = OpenSeadragon({
