@@ -13,53 +13,17 @@
     <div class="full-page-container">
         <div class="covers-entire-parent">
             <div id="osdDiv" class="covers-entire-parent"></div>
-            <div id="osdToolbarDiv" class="bg-transparent m-0" style="position:absolute;left:0;top:0;">
-                <div id="zoomin" title="Zoom in" class="dropbtn p-1 text-white pointer-cursor">
-                    <span class="oi oi-zoom-in"></span>
-                </div>
-                <div id="zoomout" title="Zoom out" class="dropbtn p-1 text-white pointer-cursor">
-                    <span class="oi oi-zoom-out"></span>
-                </div>
-                <div id="gohome" title="Go home" class="dropbtn p-1 text-white pointer-cursor">
-                    <span class="oi oi-home"></span>
-                </div>
-                <div id="togglefullpage" title="Toggle full page" class="dropbtn p-1 text-white pointer-cursor">
-                    <span class="oi oi-fullscreen-enter"></span>
-                </div>
-                <div id="rotateleft" title="Rotate left" class="dropbtn p-1 text-white pointer-cursor">
-                    <span class="oi oi-action-undo"></span>
-                </div>
-                <div id="rotateright" title="Rotate right" class="dropbtn p-1 text-white pointer-cursor">
-                    <span class="oi oi-action-redo"></span>
-                </div>
-                <div id="previous" title="Previous page" class="dropbtn p-1 text-white pointer-cursor">
-                    <span class="oi oi-arrow-left"></span>
-                </div>
-                <div id="next" title="Next page" class="dropbtn p-1 text-white pointer-cursor">
-                    <span class="oi oi-arrow-right"></span>
-                </div>
-                <div title="Take a screenshot" class="dropbtn p-1 text-white pointer-cursor"
-                     style="display:inline-block;position:relative;"
-                     onclick="window.viewer.screenshotInstance.takeScreenshot();">
-                    <span class="oi oi-camera-slr"></span>
-                </div>
-            </div>
         </div>
 
-        <div class="dropdown-fixed-bottom-left">
-            <button type="button" class="dropbtn override-button-default"
-                    onclick="setDisplayAnnotations(!window.showAnnotations);">
-                <span class="oi oi-pin"></span>
-            </button>
-            <div class="dropdown-content"></div>
+        <div class="bottom-left-of-parent">
+            <div id="annotationsToggleButton" onclick="setDisplayAnnotations(!window.showAnnotations);"></div>
+            <div class="annotation-menu-content"></div>
         </div>
 
         <div class="fixed-bottom-right text-white" style="margin-right:50px;">
             <!-- Button to trigger text editor creation triger modal -->
-            <a class="mr-1 dropbtn pointer-cursor override-button-default"
-               data-toggle="modal" data-target="#descriptionModal" onclick="getDescription(window.viewer.currentPage());">
-                <span class="oi oi-info"></span>
-            </a>
+            <div id="infoButton"
+               data-toggle="modal" data-target="#descriptionModal" onclick="getDescription(window.viewer.currentPage());"></div>
         </div>
 
         <!-- Description modal -->
@@ -89,11 +53,7 @@
             </div>
         </div>
     </div>
-    <div class="fixed-bottom-right" onclick="toggleNightMode();">
-        <a class="dropbtn override-button-default text-white pointer-cursor">
-            <span class="oi oi-sun"></span>
-        </a>
-    </div>
+    <div id="darkModeButton" onclick="toggleNightMode();"></div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
@@ -104,6 +64,8 @@
     <script type="text/javascript" src="Javascript/dist/FileSaver.js-2.0.2/FileSaver.min.js"></script>
     <script type="text/javascript" src="Javascript/dist/annotorious-openseadragon-2.0.6/openseadragon-annotorious.min.js"></script>
     <script type="text/javascript" src="Javascript/dist/openseadragonScreenshot/openseadragonScreenshot.min.js"></script>
+
+    <script type="text/javascript" src="Javascript/Own/AddCustomButtons.js"></script>
 
     <script type="text/javascript">
         function getDescription(page) {
@@ -148,7 +110,7 @@
         }
 
         function populateDropdown() {
-            var dropdn = document.getElementsByClassName("dropdown-content")[0];
+            var dropdn = document.getElementsByClassName("annotation-menu-content")[0];
             var htmlStr = "";
             var annotations = window.anno.getAnnotations();
             for (i = 0; i < annotations.length; i++) {
@@ -203,26 +165,19 @@
 
                 window.viewer = OpenSeadragon({
                     element: viewerElement,
-                    // prefixUrl: "Javascript/dist/openseadragon-bin-2.4.2/images/",
+                    prefixUrl: "Images/",
                     tileSources: tileSourcePaths,
                     animationTime: 0.25,
                     sequenceMode: true,
                     showNavigator: true,
                     showRotationControl: true,
                     ajaxWithCredentials: true,
-                    crossOriginPolicy: "Anonymous",
-
-                    // toolbar: 'osdToolbarDiv',
-
-                    zoomInButton: 'zoomin',
-                    zoomOutButton: 'zoomout',
-                    homeButton: 'gohome',
-                    fullPageButton: 'togglefullpage',
-                    rotateLeftButton: 'rotateleft',
-                    rotateRightButton: 'rotateright',
-                    previousButton: 'previous',
-                    nextButton: 'next'
+                    crossOriginPolicy: "Anonymous"
                 });
+
+                // Custom buttons
+
+                window.addCustomOSDButtons(window.viewer);
 
                 // Screenshots
 
