@@ -11,29 +11,21 @@
 
 @if (HasInitialized)
 {
-    @if (ShowPopup)
-    {
-        <div class="centered p-4">@PopupText</div>
-    }
     <OpenSeadragonViewer @ref="Viewer"
                          TileSourcePaths="TileSourcePaths"
                          AnnotationPaths="AnnotationPaths"
                          OnAnnotationsChanged="OnAnnotationsChanged"
                          OnPageChanged="OnPageChanged"
                          class="covers-entire-parent" />
-    <div class="dropdown-fixed-bottom-left">
-        <button type="button" class="dropbtn override-button-default"
-                @onclick="@(async() => { await Viewer.OpenSeadragonClient.SetDisplayAnnotations(AnnotationsOnCurrentPage.Length == 0); })">
-            <span class="oi oi-pin"></span>
-        </button>
+    <div class="bottom-left-of-parent">
+        <div id="annotationsToggleButton"
+             @onclick="@(async() => { await Viewer.OpenSeadragonClient.SetDisplayAnnotations(AnnotationsOnCurrentPage.Length == 0); })"></div>
         <AuthorizeView>
             <Authorized>
-                <button type="button" class="dropbtn override-button-default" @onclick="UploadAnnotationsOnPage">
-                    <span class="oi oi-cloud-upload"></span>
-                </button>
+                <div id="annotationsUploadButton" @onclick="UploadAnnotationsOnPage"></div>
             </Authorized>
         </AuthorizeView>
-        <div class="dropdown-content">
+        <div class="annotation-menu-content">
             @if (AnnotationsOnCurrentPage != null)
             {
                 @foreach (var ann in AnnotationsOnCurrentPage)
@@ -46,15 +38,12 @@
         </div>
     </div>
     <div class="fixed-bottom-right text-white" style="margin-right:50px;">
-        <!-- Button to trigger text editor creation triger modal -->
-        <a class="mr-1 dropbtn pointer-cursor override-button-default" 
+        <!-- Button to trigger modal -->
+        <a id="infoButton"
            data-toggle="modal" data-target="#descriptionModal" 
-           @onmousedown="@(async() => { await GetDescriptionForPage(PageIndex); })">
-            <span class="oi oi-info"></span>
-        </a>
-        <a href="/admin@((Category == "") ? "" : $"?category={Category}")" class="dropbtn override-button-default">
-            <span class="oi oi-wrench"></span>
-        </a>
+           @onclick="@(async() => { await GetDescriptionForPage(PageIndex); })"></a>
+
+        <a id="adminButton" href="/admin@((Category == "") ? "" : $"?category={Category}")"></a>
     </div>
 
     <!-- Description modal -->
@@ -108,9 +97,6 @@ else
     private string[] TileSourcePaths { get; set; }
     private string[] AnnotationPaths { get; set; }
     private bool HasInitialized { get; set; } = false;
-
-    private bool ShowPopup { get; set; } = false;
-    private string PopupText { get; set; } = "";
 
     public OpenSeadragonViewer Viewer { get; set; }
 

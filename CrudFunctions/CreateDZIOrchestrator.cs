@@ -40,7 +40,7 @@ namespace CrudFunctions
                         Category = request.Category,
                         FileExtension = request.Name.Substring(request.Name.LastIndexOf('.')),
                         Tiles = tiles.GetRange(
-                            i * numberOfTilesInSegment, 
+                            i * numberOfTilesInSegment,
                             (i == numOfCalls - 1) ? tiles.Count - i * numberOfTilesInSegment : numberOfTilesInSegment)
                         .ToArray()
                     });

@@ -24,7 +24,7 @@ namespace ImageToolsClassLibrary
             string folderName = $"{imageName.Substring(0, imageName.LastIndexOf('.'))}_files";
             string fileExtension = imageName.Substring(imageName.LastIndexOf('.'));
 
-            await onXMLBuilt($"{folderName.Substring(0, folderName.Length - 6)}.xml", 
+            await onXMLBuilt($"{folderName.Substring(0, folderName.Length - 6)}.xml",
                 BuildXML(fileExtension, overlap, tileSize, width, height));
 
             int indexOfCurrentLevel = (int)Math.Ceiling(Math.Log(Math.Max(width, height), 2));

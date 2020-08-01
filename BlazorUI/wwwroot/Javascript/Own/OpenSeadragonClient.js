@@ -5,17 +5,19 @@ window.OpenSeadragonClient = {
 
         this.dotnetHelper = dotnetHelper;
 
-        this.showAnnotations = viewerElement.offsetWidth > 1000;
+        this.showAnnotations = false;
         window.onresize = function () {
-            if (_this.showAnnotations != (viewerElement.offsetWidth > 1000)) {
+            if ((viewerElement.offsetWidth < 1000) && (_this.showAnnotations === true)) {
                 _this.setDisplayAnnotations(viewerElement.offsetWidth > 1000);
+                _this.showAnnotations = false;
             }
-            _this.showAnnotations = viewerElement.offsetWidth > 1000;
         }
+
+        // OpenSeadragon
 
         this.viewer = OpenSeadragon({
             element: viewerElement,
-            // prefixUrl: "Javascript/dist/openseadragon-bin-2.4.2/images/",
+            prefixUrl: "Images/",
             tileSources: tileSourcePaths,
             animationTime: 0.25,
             sequenceMode: true,
@@ -26,15 +28,19 @@ window.OpenSeadragonClient = {
 
             // toolbar: 'osdToolbarDiv',
 
-            zoomInButton: 'zoomin',
-            zoomOutButton: 'zoomout',
-            homeButton: 'gohome',
-            fullPageButton: 'togglefullpage',
-            rotateLeftButton: 'rotateleft',
-            rotateRightButton: 'rotateright',
-            previousButton: 'previous',
-            nextButton: 'next'
+            //zoomInButton: 'zoomin',
+            //zoomOutButton: 'zoomout',
+            //homeButton: 'gohome',
+            //fullPageButton: 'togglefullpage',
+            //rotateLeftButton: 'rotateleft',
+            //rotateRightButton: 'rotateright',
+            //previousButton: 'previous',
+            //nextButton: 'next'
         });
+
+        // Custom buttons
+
+        window.addCustomOSDButtons(this.viewer);
 
         // Screenshots
 
@@ -49,14 +55,16 @@ window.OpenSeadragonClient = {
             locale: 'auto'
         });
 
-        if (this.showAnnotations) {
-            this.anno.loadAnnotations(this.annotationPaths[0]).then(function () {
-                dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());
-            }, function () {
-                dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', []);
-            });
-        }
-        
+        //if (this.showAnnotations) {
+        //    this.anno.loadAnnotations(this.annotationPaths[0]).then(function () {
+        //        dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', _this.anno.getAnnotations());
+        //    }, function () {
+        //        dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', []);
+        //    });
+        //}
+
+        dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', []);
+
         this.viewer.addHandler("page", function (e) {
             _this.anno.selectAnnotation();
             for (let a of _this.anno.getAnnotations()) {
@@ -112,6 +120,7 @@ window.OpenSeadragonClient = {
     },
     setDisplayAnnotations: function (displayAnnotations) {
         if (displayAnnotations) {
+            this.showAnnotations = true;
             this.anno.selectAnnotation();
             let _this = this;
 
@@ -121,6 +130,7 @@ window.OpenSeadragonClient = {
                 _this.dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', []);
             });
         } else {
+            this.showAnnotations = false;
             this.anno.selectAnnotation();
             this.anno.setAnnotations([]);
             this.dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', []);

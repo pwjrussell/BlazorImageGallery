@@ -224,17 +224,8 @@ ul ul a {
     border: none;
 }
 
-/* The container <div> - needed to position the dropdown content */
-.dropdown-fixed-bottom-left {
-    position: fixed;
-    display: inline-block;
-    bottom: 0;
-    left: 0;
-}
-
 /* Dropdown Content (Hidden by Default) */
-.dropdown-content {
-    display: none;
+.annotation-menu-content {
     position: relative;
     bottom: 0;
     left: 0;
@@ -247,7 +238,7 @@ ul ul a {
 }
 
     /* Links inside the dropdown */
-    .dropdown-content a {
+    .annotation-menu-content a {
         color: black;
         padding: 12px 16px;
         text-decoration: none;
@@ -255,18 +246,10 @@ ul ul a {
     }
 
         /* Change color of dropdown links on hover */
-        .dropdown-content a:hover {
+        .annotation-menu-content a:hover {
             background-color: #ddd;
         }
 
-/* Show the dropdown menu on hover */
-.dropdown-fixed-bottom-left:hover .dropdown-content {
-    display: block;
-}
-
-.dropdown:hover .dropdown-content {
-    display: block;
-}
 
 /* Change the background color of the dropdown button when the dropdown content is shown */
 .dropbtn:hover {
