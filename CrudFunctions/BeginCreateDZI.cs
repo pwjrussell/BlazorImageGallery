@@ -27,7 +27,7 @@ namespace CrudFunctions
         [FunctionName("BeginCreateDZI")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "BeginCreateDZI/{category}/{name}")] HttpRequest req,
-            [BlobTrigger("staged-images/{category}/{name}")] CloudBlockBlob image,
+            [Blob("staged-images/{category}/{name}")] CloudBlockBlob image,
             string category,
             string name,
             ILogger log)

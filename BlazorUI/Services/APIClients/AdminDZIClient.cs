@@ -27,12 +27,8 @@ namespace BlazorUI.Services.APIClients
 
         public async Task<HttpResponseMessage> PostCreateDZIAsync(IFileListEntry image, string category, int tileSize, int overlap)
         {
-            Console.WriteLine("Started creating request.");
-
             StreamContent content = new StreamContent(image.Data);
             content.Headers.ContentType = new MediaTypeHeaderValue(image.Type);
-
-            Console.WriteLine("Posting request");
 
             return await _client.PostAsync(
                 string.Format("BeginCreateDZI/{0}/{1}?tilesize={2}&overlap={3}",
@@ -41,23 +37,6 @@ namespace BlazorUI.Services.APIClients
                     tileSize,
                     overlap),
                 content);
-
-            //var tokenResult = await _tokenProvider.RequestAccessToken(
-            //    new AccessTokenRequestOptions() 
-            //    { 
-            //        Scopes = new[] { "https://storage.azure.com/user_impersonation" }
-            //    });
-
-            //if (tokenResult.TryGetToken(out AccessToken token))
-            //{
-            //    StorageCredentials credentials = new StorageCredentials(new TokenCredential(token.Value));
-
-            //    CloudBlockBlob blob = new CloudBlockBlob(
-            //        new Uri($"{_storageBaseAddress}staged-images/{category}/{image.Name}"), credentials);
-            //    blob.Properties.ContentType = image.Type;
-
-            //    await blob.UploadFromStreamAsync(image.Data);
-            //}
         }
 
         public async Task<HttpResponseMessage> DeleteDZIAsync(string category, string name) 
