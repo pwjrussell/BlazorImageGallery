@@ -9,7 +9,6 @@ namespace HttpRequestModelsClassLibrary
     {
         public string Name { get; set; }
         public string Category { get; set; }
-        public string FileExtension { get; set; }
-        public TileModel[] Tiles { get; set; }
+        public Dictionary<int, TileModel[]> TileSegment { get; set; }
     }
 }

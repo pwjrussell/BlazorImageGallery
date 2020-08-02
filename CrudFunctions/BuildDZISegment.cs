@@ -35,40 +35,38 @@ namespace CrudFunctions
                 string dirName = $"{request.Category}/{request.Name.Substring(0, request.Name.LastIndexOf('.'))}/{request.Name.Substring(0, request.Name.LastIndexOf('.'))}_files";
                 string fileExtension = request.Name.Substring(request.Name.LastIndexOf('.'));
 
-                int level = request.Tiles[0].Level;
-                Bitmap imageBitmap;
-                Rectangle destRect;
                 ImageFormat format = DZIBuilder.GetImageFormat(stagedImage.Properties.ContentType);
 
-                using (Stream blobStream = await stagedImage.OpenReadAsync())
-                using (Image sourceImage = Image.FromStream(blobStream))
-                {
-                    imageBitmap = new Bitmap(request.Tiles[0].LevelWidth, request.Tiles[0].LevelHeight);
-                    using Graphics g = Graphics.FromImage(imageBitmap);
-                    g.DrawImage(sourceImage, 0, 0, request.Tiles[0].LevelWidth, request.Tiles[0].LevelHeight);
-                }
+                Bitmap imageBitmap;
+                Stream blobStream = await stagedImage.OpenReadAsync();
+                imageBitmap = new Bitmap(blobStream);
 
-                foreach (TileModel tile in request.Tiles)
+                int l = (int)Math.Ceiling(Math.Log(Math.Max(imageBitmap.Width, imageBitmap.Height), 2));
+                foreach (int level in request.TileSegment.Keys.OrderByDescending(l => l))
                 {
-                    if (tile.Level < level)
+                    while (l > level)
                     {
-                        level--;
-                        imageBitmap = new Bitmap(imageBitmap, tile.LevelWidth, tile.LevelHeight);
+                        // width = (int)Math.Round(0.5 * width, MidpointRounding.AwayFromZero);
+                        // height = (int)Math.Round(0.5 * height, MidpointRounding.AwayFromZero);
+
+                        imageBitmap = imageBitmap.ScaleBy(0.5);
+
+                        l--;
                     }
 
-                    destRect = new Rectangle(0, 0, tile.TileRect.Width, tile.TileRect.Height);
-
-                    using (Bitmap tileBitmap = new Bitmap(tile.TileRect.Width, tile.TileRect.Height))
-                    using (Graphics graphics = Graphics.FromImage(tileBitmap))
-                    using (MemoryStream stream = new MemoryStream())
+                    foreach (TileModel tile in request.TileSegment[level])
                     {
-                        graphics.DrawImage(imageBitmap, destRect, tile.TileRect, GraphicsUnit.Pixel);
-                        tileBitmap.Save(stream, format);
-                        stream.Seek(0, SeekOrigin.Begin);
+                        Rectangle destRect = new Rectangle(0, 0, tile.TileRect.Width, tile.TileRect.Height);
 
-                        CloudBlockBlob blockBlob = container.GetBlockBlobReference($"{dirName}/{tile.Level}/{tile.Column}_{tile.Row}{fileExtension}");
+                        using Bitmap tileBitmap = new Bitmap(tile.TileRect.Width, tile.TileRect.Height);
+                        using Graphics graphics = Graphics.FromImage(tileBitmap);
+                        graphics.DrawImage(imageBitmap, destRect, tile.TileRect, GraphicsUnit.Pixel);
+
+                        CloudBlockBlob blockBlob = container.GetBlockBlobReference($"{dirName}/{level}/{tile.Column}_{tile.Row}{fileExtension}");
                         blockBlob.Properties.ContentType = stagedImage.Properties.ContentType;
-                        await blockBlob.UploadFromStreamAsync(stream);
+
+                        using Stream stream = await blockBlob.OpenWriteAsync();
+                        tileBitmap.Save(stream, format);
                     }
                 }
             }

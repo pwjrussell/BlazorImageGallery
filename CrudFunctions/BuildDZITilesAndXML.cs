@@ -19,7 +19,7 @@ namespace CrudFunctions
     public static class BuildDZITilesAndXML
     {
         [FunctionName("BuildDZITilesAndXML")]
-        public static async Task<List<TileModel>> Run(
+        public static async Task<Dictionary<int, TileModel[]>> Run(
             [ActivityTrigger] IDurableActivityContext context,
             [Blob("staged-images", FileAccess.Read)] CloudBlobContainer stagingContainer,
             [Blob("dzi-images", FileAccess.Write)] CloudBlobContainer container,
@@ -41,7 +41,7 @@ namespace CrudFunctions
                     await blockBlob.UploadTextAsync(xml);
                 };
 
-                List<TileModel> tiles = await DZIBuilder.Build(
+                Dictionary<int, TileModel[]> tiles = await DZIBuilder.Build(
                     imageBitmap.Width,
                     imageBitmap.Height,
                     request.Name,
@@ -53,7 +53,7 @@ namespace CrudFunctions
             catch (Exception e)
             {
                 log.LogError(e.ToString());
-                return new List<TileModel>();
+                return new Dictionary<int, TileModel[]>();
             }
         }
     }

@@ -13,7 +13,7 @@ namespace ImageToolsClassLibrary
         public delegate Task OnTileBuilt(string fileName, Stream tileImageStream);
         public delegate Task OnXMLBuilt(string fileName, string xml);
 
-        public static async Task<List<TileModel>> Build(
+        public static async Task<Dictionary<int, TileModel[]>> Build(
             int width,
             int height,
             string imageName,
@@ -28,20 +28,19 @@ namespace ImageToolsClassLibrary
                 BuildXML(fileExtension, overlap, tileSize, width, height));
 
             int indexOfCurrentLevel = (int)Math.Ceiling(Math.Log(Math.Max(width, height), 2));
-            List<TileModel> tiles = new List<TileModel>();
+            Dictionary<int, TileModel[]> tiles = new Dictionary<int, TileModel[]>();
             for (int i = indexOfCurrentLevel; i > -1; i--)
             {
-                tiles.AddRange(await BuildTilesOnLevel(width, height, i, tileSize, overlap));
+                tiles[i] = BuildTilesOnLevel(width, height, tileSize, overlap);
 
                 width = (int)Math.Round(0.5 * width, MidpointRounding.AwayFromZero);
                 height = (int)Math.Round(0.5 * height, MidpointRounding.AwayFromZero);
             }
             return tiles;
         }
-        private static async Task<TileModel[]> BuildTilesOnLevel(
+        private static TileModel[] BuildTilesOnLevel(
             int width,
             int height,
-            int level,
             int tileSize,
             int overlap)
         {
@@ -61,9 +60,6 @@ namespace ImageToolsClassLibrary
 
                     tiles[i * rows + j] = new TileModel()
                     {
-                        Level = level,
-                        LevelWidth = width,
-                        LevelHeight = height,
                         Column = i,
                         Row = j,
                         TileRect = new Rectangle(

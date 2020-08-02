@@ -26,9 +26,9 @@ namespace CrudFunctions
         }
 
         [FunctionName("BeginCreateDZI")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "BeginCreateDZI/{category}/{name}")] HttpRequest req,
-            [Blob("staged-images/{category}/{name}", FileAccess.Write)] CloudBlockBlob image,
+        public async Task Run(
+            // [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "BeginCreateDZI/{category}/{name}")] HttpRequest req,
+            [BlobTrigger("staged-images/{category}/{name}")] CloudBlockBlob image,
             [DurableClient] IDurableClient starter,
             string category,
             string name,
@@ -36,52 +36,52 @@ namespace CrudFunctions
         {
             try
             {
-                try
-                {
-                    ClaimsPrincipal principal = await _JwtService.GetClaimsPrincipalAsync(req);
+                //try
+                //{
+                //    ClaimsPrincipal principal = await _JwtService.GetClaimsPrincipalAsync(req);
 
-                    if (!principal.Identity.IsAuthenticated)
-                    {
-                        return new UnauthorizedResult();
-                    }
-                }
-                catch (Exception e)
-                {
-                    log.LogError(e.ToString());
-                    return new UnauthorizedResult();
-                }
+                //    if (!principal.Identity.IsAuthenticated)
+                //    {
+                //        return new UnauthorizedResult();
+                //    }
+                //}
+                //catch (Exception e)
+                //{
+                //    log.LogError(e.ToString());
+                //    return new UnauthorizedResult();
+                //}
 
                 if (name.Contains('/') || name.Contains('\\') ||
                     category.Contains('/') || category.Contains('\\'))
                 {
                     throw new ArgumentException("The file name or category contained a slash.");
                 }
-                int tileSize = Convert.ToInt32(req.Query["tilesize"]);
-                int overlap = Convert.ToInt32(req.Query["overlap"]);
+                //int tileSize = Convert.ToInt32(req.Query["tilesize"]);
+                //int overlap = Convert.ToInt32(req.Query["overlap"]);
 
-                image.Properties.ContentType = req.ContentType;
-                image.Metadata["tilesize"] = tileSize.ToString();
-                image.Metadata["overlap"] = overlap.ToString();
+                //image.Properties.ContentType = req.ContentType;
+                //image.Metadata["tilesize"] = tileSize.ToString();
+                //image.Metadata["overlap"] = overlap.ToString();
 
-                await image.UploadFromStreamAsync(req.Body);
+                //await image.UploadFromStreamAsync(req.Body);
 
                 DZICreationRequest request = new DZICreationRequest()
                 {
                     Name = name,
                     Category = category,
-                    TileSize = tileSize,
-                    Overlap = overlap
+                    TileSize = 512,
+                    Overlap = 1
                 };
                 string instanceId = await starter.StartNewAsync("CreateDZIOrchestrator", request);
 
                 log.LogInformation($"Started orchestration with ID = '{instanceId}'.");
 
-                return starter.CreateCheckStatusResponse(req, instanceId);
+                // return starter.CreateCheckStatusResponse(req, instanceId);
             }
             catch (Exception e)
             {
                 log.LogError(e.ToString());
-                return new InternalServerErrorResult();
+                // return new InternalServerErrorResult();
             }
         }
     }
