@@ -13,63 +13,100 @@ namespace ImageToolsClassLibrary
         public delegate Task OnTileBuilt(string fileName, Stream tileImageStream);
         public delegate Task OnXMLBuilt(string fileName, string xml);
 
-        public static async Task<Dictionary<int, TileModel[]>> Build(
-            int width,
-            int height,
+        /// <summary>
+        /// Builds the DZI image pyramid files and .xml metadata file in memory and passes them on to the callbacks provided.
+        /// </summary>
+        /// <param name="imageName">The name of the image file, including the file extension.</param>
+        /// <param name="imageBitmap">The bitmap of the image file.</param>
+        /// <param name="mimeContentType">The MIME content type of the images in the image pyramid.</param>
+        /// <param name="tileSize">The side length of the square tiles (excluding overlap) in the image pyramid.</param>
+        /// <param name="overlap">The overlap of the images generated in the image pyramid.</param>
+        /// <param name="onTileBuilt">The callback called when a tile in the image pyramid is built.</param>
+        /// <param name="onXMLBuilt">The callback called when the .xml metadata file is built.</param>
+        /// <returns>The task that builds the DZI image folder with the callbacks provided.</returns>
+        public static async Task Build(
             string imageName,
+            Bitmap imageBitmap,
+            string mimeContentType,
             int tileSize,
             int overlap,
+            OnTileBuilt onTileBuilt,
             OnXMLBuilt onXMLBuilt)
         {
+            new FileExtensionContentTypeProvider().TryGetContentType(imageName, out string contentType);
+            if (contentType != mimeContentType)
+            {
+                throw new ArgumentException("The file extension and the MIME content type provided did not match.");
+            }
+            ImageFormat format = GetImageFormat(contentType);
+
             string folderName = $"{imageName.Substring(0, imageName.LastIndexOf('.'))}_files";
             string fileExtension = imageName.Substring(imageName.LastIndexOf('.'));
 
             await onXMLBuilt($"{folderName.Substring(0, folderName.Length - 6)}.xml",
-                BuildXML(fileExtension, overlap, tileSize, width, height));
+                BuildXML(fileExtension, overlap, tileSize, imageBitmap.Width, imageBitmap.Height));
 
-            int indexOfCurrentLevel = (int)Math.Ceiling(Math.Log(Math.Max(width, height), 2));
-            Dictionary<int, TileModel[]> tiles = new Dictionary<int, TileModel[]>();
+            int indexOfCurrentLevel = (int)Math.Ceiling(Math.Log(Math.Max(imageBitmap.Width, imageBitmap.Height), 2));
             for (int i = indexOfCurrentLevel; i > -1; i--)
             {
-                tiles[i] = BuildTilesOnLevel(width, height, tileSize, overlap);
-
-                width = (int)Math.Round(0.5 * width, MidpointRounding.AwayFromZero);
-                height = (int)Math.Round(0.5 * height, MidpointRounding.AwayFromZero);
+                await BuildTilesOnLevel(imageBitmap, format, i, tileSize, overlap, folderName, fileExtension, onTileBuilt);
+                imageBitmap = imageBitmap.ScaleBy(0.5);
             }
-            return tiles;
         }
-        private static TileModel[] BuildTilesOnLevel(
-            int width,
-            int height,
+        /// <summary>
+        /// Splits the image provided (level) into tiles and calls the ontileBuilt on each tile.
+        /// </summary>
+        /// <param name="levelImage">The image corresponding to the current level of the image pyramid.</param>
+        /// <param name="format">The ImageFormat implementation used for saving the tile Bitmap into the stream passed to the callback.</param>
+        /// <param name="level">The level in the image pyramid, used for naming the tiles.</param>
+        /// <param name="tileSize">The side length of the square tiles (excluding overlap).</param>
+        /// <param name="overlap">The overlap of the tiles.</param>
+        /// <param name="folderName">The name of the folder into which the tiles will belong, used for naming the tiles.</param>
+        /// <param name="fileExtension">The file extension of the tiles, used for naming the tiles.</param>
+        /// <param name="onTileBuilt">The callback to call when a tile is built.</param>
+        /// <returns>A task that builds the tiles on a level of the image pyramid with the callback provided.</returns>
+        private static async Task BuildTilesOnLevel(
+            Image levelImage,
+            ImageFormat format,
+            int level,
             int tileSize,
-            int overlap)
+            int overlap,
+            string folderName,
+            string fileExtension,
+            OnTileBuilt onTileBuilt)
         {
-            int columns = (int)Math.Ceiling((double)width / tileSize);
-            int rows = (int)Math.Ceiling((double)height / tileSize);
+            int columns = (int)Math.Ceiling((double)levelImage.Width / tileSize);
+            int rows = (int)Math.Ceiling((double)levelImage.Height / tileSize);
             int sliceWidth;
             int sliceHeight;
-
-            TileModel[] tiles = new TileModel[rows * columns];
+            Rectangle destRect;
+            Rectangle srcRect;
+            string prefix = $"{folderName}/{level}/";
 
             for (int i = 0; i < columns; i++)
             {
                 for (int j = 0; j < rows; j++)
                 {
-                    sliceWidth = ((i == columns - 1) ? width - i * tileSize : tileSize + overlap) + ((i > 0) ? overlap : 0);
-                    sliceHeight = ((j == rows - 1) ? height - j * tileSize : tileSize + overlap) + ((j > 0) ? overlap : 0);
+                    sliceWidth = ((i == columns - 1) ? levelImage.Width - i * tileSize : tileSize + overlap) + ((i > 0) ? overlap : 0);
+                    sliceHeight = ((j == rows - 1) ? levelImage.Height - j * tileSize : tileSize + overlap) + ((j > 0) ? overlap : 0);
 
-                    tiles[i * rows + j] = new TileModel()
+                    destRect = new Rectangle(0, 0, sliceWidth, sliceHeight);
+                    srcRect = new Rectangle(
+                        (i == 0) ? 0 : i * tileSize - overlap,
+                        (j == 0) ? 0 : j * tileSize - overlap,
+                        sliceWidth, sliceHeight);
+
+                    using (Bitmap tileBitmap = new Bitmap(sliceWidth, sliceHeight))
+                    using (Graphics graphics = Graphics.FromImage(tileBitmap))
+                    using (MemoryStream stream = new MemoryStream())
                     {
-                        Column = i,
-                        Row = j,
-                        TileRect = new Rectangle(
-                            (i == 0) ? 0 : i * tileSize - overlap,
-                            (j == 0) ? 0 : j * tileSize - overlap,
-                            sliceWidth, sliceHeight)
-                    };
+                        graphics.DrawImage(levelImage, destRect, srcRect, GraphicsUnit.Pixel);
+                        tileBitmap.Save(stream, format);
+                        stream.Seek(0, SeekOrigin.Begin);
+                        await onTileBuilt($"{prefix}{i}_{j}{fileExtension}", stream);
+                    }
                 }
             }
-            return tiles;
         }
 
         private static string BuildXML(string fileExtension, int overlap, int tileSize, int imageWidth, int imageHeight)
@@ -77,7 +114,7 @@ namespace ImageToolsClassLibrary
             return $"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Image xmlns=\"http://schemas.microsoft.com/deepzoom/2009\" Format=\"{fileExtension.Substring(1)}\" Overlap=\"{overlap}\" ServerFormat=\"Default\" TileSize=\"{tileSize}\"><Size Height=\"{imageHeight}\" Width=\"{imageWidth}\"/></Image>";
         }
 
-        public static ImageFormat GetImageFormat(string contentType)
+        private static ImageFormat GetImageFormat(string contentType)
         {
             switch (contentType)
             {
