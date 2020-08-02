@@ -26,6 +26,8 @@ window.OpenSeadragonClient = {
             ajaxWithCredentials: true,
             crossOriginPolicy: "Anonymous",
 
+            navigatorDisplayRegionColor: "#2AFB6E"
+
             // toolbar: 'osdToolbarDiv',
 
             //zoomInButton: 'zoomin',
