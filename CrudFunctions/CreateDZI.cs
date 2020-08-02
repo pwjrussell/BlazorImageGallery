@@ -43,7 +43,7 @@ namespace CrudFunctions
                 string fileExtension = imageName.Substring(imageName.LastIndexOf('.'));
 
                 Stream blobStream = await stagedImage.OpenReadAsync();
-                Image sourceImage = Image.NewFromStream(blobStream);
+                Image sourceImage = Image.NewFromStream(blobStream, access: Enums.Access.Sequential);
 
                 byte[] zipBuffer = sourceImage.DzsaveBuffer(
                     basename: imageName.Substring(0, imageName.LastIndexOf('.')), 
