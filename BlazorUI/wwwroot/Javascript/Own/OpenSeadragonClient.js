@@ -26,7 +26,8 @@ window.OpenSeadragonClient = {
             ajaxWithCredentials: true,
             crossOriginPolicy: "Anonymous",
 
-            navigatorDisplayRegionColor: "#2AFB6E"
+            navigatorDisplayRegionColor: "#2AFB6E",
+            navigatorBackground: document.getElementsByClassName("full-page-container")[0].style.backgroundColor
 
             // toolbar: 'osdToolbarDiv',
 

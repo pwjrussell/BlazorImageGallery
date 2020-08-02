@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Storage.Blob;
-using ImageToolsClassLibrary;
-using System.Drawing;
+using NetVips;
+using System.IO.Compression;
 
 namespace CrudFunctions
 {
@@ -40,33 +40,31 @@ namespace CrudFunctions
                     overlap = 1;
                 }
 
+                string fileExtension = imageName.Substring(imageName.LastIndexOf('.'));
 
                 Stream blobStream = await stagedImage.OpenReadAsync();
-                Bitmap imageBitmap = new Bitmap(blobStream);
+                Image sourceImage = Image.NewFromStream(blobStream);
 
-                string dirName = $"{category}/{imageName.Substring(0, imageName.LastIndexOf('.'))}";
+                byte[] zipBuffer = sourceImage.DzsaveBuffer(
+                    basename: imageName.Substring(0, imageName.LastIndexOf('.')), 
+                    suffix: fileExtension, 
+                    tileSize: tileSize,
+                    overlap: overlap,
+                    container: Enums.ForeignDzContainer.Zip);
 
-                DZIBuilder.OnTileBuilt onTileBuilt = async (fileName, tileImageStream) =>
+                using Stream zipStream = new MemoryStream(zipBuffer);
+                using ZipArchive zipArchive = new ZipArchive(zipStream);
+
+                foreach (ZipArchiveEntry entry in zipArchive.Entries)
                 {
-                    CloudBlockBlob blockBlob = container.GetBlockBlobReference($"{dirName}/{fileName}");
-                    blockBlob.Properties.ContentType = stagedImage.Properties.ContentType;
-                    await blockBlob.UploadFromStreamAsync(tileImageStream);
-                };
-                DZIBuilder.OnXMLBuilt onXMLBuilt = async (fileName, xml) =>
-                {
-                    CloudBlockBlob blockBlob = container.GetBlockBlobReference($"{dirName}/{fileName}");
-                    blockBlob.Properties.ContentType = "text/xml";
-                    await blockBlob.UploadTextAsync(xml);
-                };
+                    using Stream stream = entry.Open();
+                    CloudBlockBlob blockBlob = container.GetBlockBlobReference(
+                        $"{category}/{entry.FullName.Replace(".dzi", ".xml")}");
+                    blockBlob.Properties.ContentType = 
+                        entry.Name.Contains(".xml") ? "text/xml" : stagedImage.Properties.ContentType;
 
-                await DZIBuilder.Build(
-                    imageName,
-                    imageBitmap,
-                    stagedImage.Properties.ContentType,
-                    tileSize,
-                    overlap,
-                    onTileBuilt,
-                    onXMLBuilt);
+                    await blockBlob.UploadFromStreamAsync(stream);
+                }
             }
             catch (Exception e)
             {
