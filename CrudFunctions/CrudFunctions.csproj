@@ -19,7 +19,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HttpRequestModelsClassLibrary\HttpRequestModelsClassLibrary.csproj" />
-    <ProjectReference Include="..\ImageToolsClassLibrary\ImageToolsClassLibrary.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
