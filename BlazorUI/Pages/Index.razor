@@ -19,11 +19,6 @@
                          class="covers-entire-parent" />
     <div class="bottom-left-of-parent">
         <div id="annotationsToggleButton" @onclick="ToggleDisplayAnnotations"></div>
-        <AuthorizeView>
-            <Authorized>
-                <div id="annotationsUploadButton" @onclick="UploadAnnotationsOnPage"></div>
-            </Authorized>
-        </AuthorizeView>
         <div class="annotation-menu-content">
             @if (DisplayAnnotations)
             {
@@ -125,13 +120,6 @@ else
         DisplayAnnotations = !DisplayAnnotations; 
         await Viewer.OpenSeadragonClient.SetDisplayAnnotations(DisplayAnnotations);
         this.StateHasChanged();
-    }
-
-    private async Task UploadAnnotationsOnPage()
-    {
-        int i = TileSourcePaths[PageIndex].LastIndexOf('/');
-        await AdminClient.PostAnnotationsAsync(
-            Category, TileSourcePaths[PageIndex].Substring(i + 1, TileSourcePaths[PageIndex].Length - i - 5), AnnotationsOnCurrentPage);
     }
 
     private async Task GetDescriptionForPage(int i)

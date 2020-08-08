@@ -342,11 +342,14 @@
 
     private async Task UploadAnnotationsOnPage()
     {
-        ToggleLoadingScreen();
-        int i = TileSourcePaths[CategoryIndex][PageIndex].LastIndexOf('/');
-        await AdminClient.PostAnnotationsAsync(
-            Categories[CategoryIndex], ImageNames[CategoryIndex][PageIndex], AnnotationsOnCurrentPage);
-        ToggleLoadingScreen();
+        if (DisplayAnnotations)
+        {
+            ToggleLoadingScreen();
+            int i = TileSourcePaths[CategoryIndex][PageIndex].LastIndexOf('/');
+            await AdminClient.PostAnnotationsAsync(
+                Categories[CategoryIndex], ImageNames[CategoryIndex][PageIndex], AnnotationsOnCurrentPage);
+            ToggleLoadingScreen();
+        }
     }
 
     protected override async Task OnInitializedAsync()
