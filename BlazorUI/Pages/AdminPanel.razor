@@ -81,11 +81,15 @@
                                         OnPageChanged="@(async (int page) => { PageIndex = page; })"
                                         class="covers-entire-parent" />
                 <div class="bottom-left-of-parent position-absolute">
-                    <div id="annotationsToggleButton"
-                            @onclick="@(async() => { await Viewer.OpenSeadragonClient.SetDisplayAnnotations(AnnotationsOnCurrentPage.Length == 0); })"></div>
+                    <div id="annotationsToggleButton" @onclick="ToggleDisplayAnnotations"></div>
                     
                     <div id="annotationsUploadButton" @onclick="UploadAnnotationsOnPage"></div>
                     <div class="annotation-menu-content">
+                        @if (DisplayAnnotations)
+                        {
+                            <a><h4>Annotations:</h4></a>
+                        }
+
                         @if (AnnotationsOnCurrentPage != null)
                         {
                             @foreach (var ann in AnnotationsOnCurrentPage)
@@ -139,10 +143,7 @@
                         </div>
                     </div>
                     <div class="d-inline-flex">
-                        <InputFile OnChange="OnFileselectedForDZICreation" oninput="$('#exampleModal').modal('hide');" />
-                        <div id="spinner" class="spinner-border" role="status" style="display: none;">
-                            <span class="sr-only">Loading...</span>
-                        </div>
+                        <InputFile OnChange="OnFileselectedForDZICreation" oninput="$('#dziCreationModal').modal('hide');" />
                     </div>
                     <p class="text-muted" id="statusText"></p>
                 </div>
@@ -195,9 +196,6 @@
             <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
-            <p class="mt-4">
-                Uploading the image, this may take a while.
-            </p>
         </div>
     </div>
 }
@@ -224,22 +222,37 @@
     private HTMLEditor Editor { get; set; }
     private W3CWebAnnotationModel[] AnnotationsOnCurrentPage { get; set; }
 
+    private bool DisplayAnnotations { get; set; } = false;
+
     private bool HasInitialized { get; set; } = false;
     private bool ShowLoadingScreen { get; set; } = false;
 
+    private async Task ToggleDisplayAnnotations()
+    {
+        DisplayAnnotations = !DisplayAnnotations;
+        await Viewer.OpenSeadragonClient.SetDisplayAnnotations(DisplayAnnotations);
+        this.StateHasChanged();
+    }
+
     private async Task PostDescription()
     {
+        ToggleLoadingScreen();
         Descriptions[CategoryIndex][PageIndex] = await Editor.GetInnerHTML();
         await AdminClient.PostDescriptionAsync(
             Categories[CategoryIndex], ImageNames[CategoryIndex][PageIndex], Descriptions[CategoryIndex][PageIndex]);
+        ToggleLoadingScreen();
     }
 
     private async Task OnFileselectedForDZICreation(IFileListEntry[] files)
     {
-        ToggleLoadingScreen();
-        await AdminClient.PostCreateDZIAsync(files[0], Category, TileSize, Overlap);
-        ToggleLoadingScreen();
+        IFileListEntry file = files?.FirstOrDefault();
 
+        if (file != null)
+        {
+            ToggleLoadingScreen();
+            await AdminClient.PostCreateDZIAsync(file, Category, TileSize, Overlap);
+            ToggleLoadingScreen();
+        }
     }
 
     private void ToggleLoadingScreen()
@@ -329,9 +342,11 @@
 
     private async Task UploadAnnotationsOnPage()
     {
+        ToggleLoadingScreen();
         int i = TileSourcePaths[CategoryIndex][PageIndex].LastIndexOf('/');
         await AdminClient.PostAnnotationsAsync(
             Categories[CategoryIndex], ImageNames[CategoryIndex][PageIndex], AnnotationsOnCurrentPage);
+        ToggleLoadingScreen();
     }
 
     protected override async Task OnInitializedAsync()

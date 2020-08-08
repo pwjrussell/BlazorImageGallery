@@ -18,14 +18,18 @@
                          OnPageChanged="OnPageChanged"
                          class="covers-entire-parent" />
     <div class="bottom-left-of-parent">
-        <div id="annotationsToggleButton"
-             @onclick="@(async() => { await Viewer.OpenSeadragonClient.SetDisplayAnnotations(AnnotationsOnCurrentPage.Length == 0); })"></div>
+        <div id="annotationsToggleButton" @onclick="ToggleDisplayAnnotations"></div>
         <AuthorizeView>
             <Authorized>
                 <div id="annotationsUploadButton" @onclick="UploadAnnotationsOnPage"></div>
             </Authorized>
         </AuthorizeView>
         <div class="annotation-menu-content">
+            @if (DisplayAnnotations)
+            {
+                <a><h4>Annotations:</h4></a>
+            }
+
             @if (AnnotationsOnCurrentPage != null)
             {
                 @foreach (var ann in AnnotationsOnCurrentPage)
@@ -103,7 +107,7 @@ else
     private W3CWebAnnotationModel[] AnnotationsOnCurrentPage { get; set; }
     private MarkupString[] Descriptions { get; set; }
 
-    private bool NightMode { get; set; } = false;
+    private bool DisplayAnnotations { get; set; } = false;
 
     private async Task OnAnnotationsChanged(W3CWebAnnotationModel[] annotations)
     {
@@ -112,7 +116,14 @@ else
     }
     private async Task OnPageChanged(int page)
     {
-        PageIndex = page; 
+        PageIndex = page;
+        this.StateHasChanged();
+    }
+
+    private async Task ToggleDisplayAnnotations()
+    {
+        DisplayAnnotations = !DisplayAnnotations; 
+        await Viewer.OpenSeadragonClient.SetDisplayAnnotations(DisplayAnnotations);
         this.StateHasChanged();
     }
 
