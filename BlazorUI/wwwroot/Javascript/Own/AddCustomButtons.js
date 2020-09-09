@@ -68,11 +68,17 @@ window.addCustomOSDButtons = function (viewer) {
     viewer.buttons.element.appendChild(annotationsUploadButton.element);
 
     viewer.addHandler('open', function () {
-        if (location.href.includes("/admin")) {
-            adminButton.element.style.display = "none";
-            annotationsUploadButton.element.style.display = "inline-block";
-            infoButton.element.style.display = "none";
-        } else {
+        try {
+            if (location.href.includes("/admin")) {
+                adminButton.element.style.display = "none";
+                annotationsUploadButton.element.style.display = "inline-block";
+                infoButton.element.style.display = "none";
+            } else {
+                adminButton.element.style.display = "inline-block";
+                annotationsUploadButton.element.style.display = "none";
+                infoButton.element.style.display = "inline-block";
+            }
+        } catch (e) { // IE fix
             adminButton.element.style.display = "inline-block";
             annotationsUploadButton.element.style.display = "none";
             infoButton.element.style.display = "inline-block";
