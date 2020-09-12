@@ -21,7 +21,7 @@
         </div>
 
         <div class="fixed-bottom-right text-white" style="margin-right:50px;">
-            <!-- Button to trigger text editor creation triger modal -->
+            <!-- Button to trigger description modal -->
             <div id="infoButton"
                data-toggle="modal" data-target="#descriptionModal" onclick="getDescription(window.viewer.currentPage());"></div>
         </div>
@@ -129,16 +129,14 @@
 
         function setDisplayAnnotations(displayAnnotations) {
             window.showAnnotations = displayAnnotations;
+            window.anno.selectAnnotation();
             if (displayAnnotations) {
-                window.anno.selectAnnotation();
-
-                window.anno.loadAnnotations(window.annotationPaths[window.viewer.currentPage]).then(function () {
+                window.anno.loadAnnotations(window.annotationPaths[window.viewer.currentPage()]).then(function () {
                     populateDropdown();
                 }, function () {
                     populateDropdown();
                 });
             } else {
-                window.anno.selectAnnotation();
                 window.anno.setAnnotations([]);
                 populateDropdown();
             }
@@ -187,13 +185,14 @@
 
                 // Annotorious
 
-                window.showAnnotations = viewerElement.offsetWidth > 1000;
+                window.showAnnotations = false;
                 window.addEventListener("resize", function () {
-                    if (window.showAnnotations != (viewerElement.offsetWidth > 1000)) {
-                        setDisplayAnnotations(viewerElement.offsetWidth > 1000);
+                    if ((viewerElement.offsetWidth < 1000) && this.window.showAnnotations === true) {
+                        this.window.showAnnotations = false;
+
+                        setDisplayAnnotations(this.window.showAnnotations);
                         populateDropdown();
                     }
-                    window.showAnnotations = viewerElement.offsetWidth > 1000;
                 });
 
                 window.anno = OpenSeadragon.Annotorious(window.viewer, {
@@ -201,21 +200,19 @@
                     locale: 'auto'
                 });
 
-                window.anno.loadAnnotations(window.annotationPaths[0]).then(function () {
-                    populateDropdown();
-                }, function () {
-                    populateDropdown();
-                });
-
                 window.viewer.addHandler("page", function (e) {
                     window.anno.selectAnnotation();
                     window.anno.setAnnotations([]);
 
-                    window.anno.loadAnnotations(window.annotationPaths[e.page]).then(function () {
+                    if (window.showAnnotations) {
+                        window.anno.loadAnnotations(window.annotationPaths[e.page]).then(function () {
+                            populateDropdown();
+                        }, function () {
+                            populateDropdown();
+                        });
+                    } else {
                         populateDropdown();
-                    }, function () {
-                        populateDropdown();
-                    });
+                    }
                 });
             });
     </script>
