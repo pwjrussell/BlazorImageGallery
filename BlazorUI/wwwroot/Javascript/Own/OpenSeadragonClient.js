@@ -12,6 +12,12 @@ window.OpenSeadragonClient = {
                 _this.setDisplayAnnotations(viewerElement.offsetWidth > 1000);
                 _this.showAnnotations = false;
             }
+
+            // Max controls width
+            if (_this.viewer) {
+                _this.viewer.controls[0].element.parentElement.parentElement.style.maxWidth =
+                    `calc(100vw - ${_this.viewer.navigator.element.offsetWidth}px)`;
+            }
         }
 
         // OpenSeadragon
@@ -41,6 +47,11 @@ window.OpenSeadragonClient = {
             //previousButton: 'previous',
             //nextButton: 'next'
         });
+
+        // Max controls width
+
+        this.viewer.controls[0].element.parentElement.parentElement.style.maxWidth =
+            `calc(100vw - ${this.viewer.navigator.element.offsetWidth}px)`;
 
         // Custom buttons
 

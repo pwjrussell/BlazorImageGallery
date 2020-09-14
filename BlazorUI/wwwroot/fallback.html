@@ -175,6 +175,11 @@
                     navigatorBackground: document.getElementsByClassName("full-page-container")[0].style.backgroundColor
                 });
 
+                // Max controls width
+
+                window.viewer.controls[0].element.parentElement.parentElement.style.maxWidth =
+                    "calc(100vw - " + window.viewer.navigator.element.offsetWidth + "px)";
+
                 // Custom buttons
 
                 window.addCustomOSDButtons(window.viewer);
@@ -193,6 +198,10 @@
                         setDisplayAnnotations(this.window.showAnnotations);
                         populateDropdown();
                     }
+
+                    // Max controls width
+                    window.viewer.controls[0].element.parentElement.parentElement.style.maxWidth =
+                        "calc(100vw - " + window.viewer.navigator.element.offsetWidth + "px)";
                 });
 
                 window.anno = OpenSeadragon.Annotorious(window.viewer, {
