@@ -9,14 +9,13 @@ window.OpenSeadragonClient = {
         this.showAnnotations = false;
         window.onresize = function () {
             if ((viewerElement.offsetWidth < 1000) && (_this.showAnnotations === true)) {
-                _this.setDisplayAnnotations(viewerElement.offsetWidth > 1000);
-                _this.showAnnotations = false;
+                _this.setDisplayAnnotations(false);
             }
 
             // Max controls width
             if (_this.viewer) {
                 _this.viewer.controls[0].element.parentElement.parentElement.style.maxWidth =
-                    `calc(100vw - ${_this.viewer.navigator.element.offsetWidth}px)`;
+                    viewerElement.offsetWidth > 1000 ? "100vw" : "30px";
             }
         }
 
@@ -51,7 +50,7 @@ window.OpenSeadragonClient = {
         // Max controls width
 
         this.viewer.controls[0].element.parentElement.parentElement.style.maxWidth =
-            `calc(100vw - ${this.viewer.navigator.element.offsetWidth}px)`;
+            this.viewer.element.offsetWidth > 1000 ? "100vw" : "30px";
 
         // Custom buttons
 
@@ -90,7 +89,7 @@ window.OpenSeadragonClient = {
         this.viewer.goToPage(index);
     },
     setDisplayAnnotations: function (displayAnnotations) {
-        this.showAnnotations = displayAnnotations;
+        this.showAnnotations = this.viewer.element.offsetWidth > 1000 ? displayAnnotations : false;
         this.anno.destroy();
         this.initializeAnno();
     },
