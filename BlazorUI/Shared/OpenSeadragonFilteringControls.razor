@@ -1,0 +1,39 @@
+﻿
+<div>
+    <div class="dropzone">
+        <div class="form-group">
+            <label for="thresholdingInput">Threshholding: </label>
+            <input id="thresholdingInput" class="form-control-range" type="range" min="0" max="255" />
+        </div>
+        <div class="form-group">
+            <label for="brightnessInput">Brightness: </label>
+            <input id="brightnessInput" class="form-control-range" type="range" min="-255" max="255" />
+        </div>
+        <div class="form-group">
+            <label for="contrastInput">Contrast: </label>
+            <input id="contrastInput" class="form-control-range" type="range" min="0" max="4" />
+        </div>
+        <div class="form-group">
+            <label for="gammaInput">Gamma: </label>
+            <input id="gammaInput" class="form-control-range" type="range" min="0" max="4" />
+        </div>
+        <div class="form-group">
+            <label for="grayScaleInput">Grayscale: </label>
+            <input id="grayScaleInput" class="form-check-input" type="checkbox" />
+        </div>
+        <div class="form-group">
+            <label for="invertInput">Invert colours: </label>
+            <input id="invertInput" class="form-check-input" type="checkbox" />
+        </div>
+    </div>
+
+    <div>
+        <button type="button" 
+                class="btn btn-outline-primary"
+                onclick="window.OpenSeadragonFilteringClient.clearFilters();">Clear Filters</button>
+
+        <button type="button" 
+                class="btn btn-primary"
+                onclick="window.OpenSeadragonFilteringClient.applyFilters();">Apply Filters</button>
+    </div>
+</div>

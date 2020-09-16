@@ -37,10 +37,13 @@
         </div>
     </div>
     <div class="fixed-bottom-right text-white" style="margin-right:50px;">
-        <!-- Button to trigger modal -->
+        <!-- Button to trigger the description modal -->
         <a id="infoButton"
-           data-toggle="modal" data-target="#descriptionModal" 
+           data-toggle="modal" data-target="#descriptionModal"
            @onclick="@(async() => { await GetDescriptionForPage(PageIndex); })"></a>
+        <!-- Button to trigger the filter modal -->
+        <a id="filterButton"
+           data-toggle="modal" data-target="#filterModal"></a>
 
         <a id="adminButton" href="/admin@((Category == "") ? "" : $"?category={Category}")"></a>
     </div>
@@ -74,6 +77,32 @@
             </div>
         </div>
     </div>
+    <!-- Filter modal -->
+    <div class="modal fade"
+         id="filterModal"
+         tabindex="-1"
+         role="dialog"
+         aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="filterModalLabel">
+                        Info
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <OpenSeadragonFilteringControls />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 else
 {
@@ -83,7 +112,7 @@ else
                 <span class="sr-only">Loading...</span>
             </div>
             <p class="mt-4">
-                Downloading images.
+                Fetching the list of images.
             </p>
         </div>
     </div>
@@ -117,7 +146,7 @@ else
 
     private async Task ToggleDisplayAnnotations()
     {
-        DisplayAnnotations = !DisplayAnnotations; 
+        DisplayAnnotations = !DisplayAnnotations;
         await Viewer.OpenSeadragonClient.SetDisplayAnnotations(DisplayAnnotations);
         this.StateHasChanged();
     }
@@ -157,6 +186,5 @@ else
         }
 
         HasInitialized = true;
-        // Viewer?.UpdateAsync();
     }
 }

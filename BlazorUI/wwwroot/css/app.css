@@ -22,6 +22,15 @@ a, a:hover, a:focus {
         position: relative;
     }
 
+.dropzone {
+    width: 100%;
+    min-height: 200px;
+    background-color: whitesmoke;
+    border-style: solid;
+    border-color: darkgray;
+    border-radius: 5px;
+}
+
 .rounding-bottom-0 {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
