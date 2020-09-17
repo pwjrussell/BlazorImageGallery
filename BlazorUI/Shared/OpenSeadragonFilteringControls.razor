@@ -1,27 +1,67 @@
 ﻿
 <div>
     <div class="dropzone">
-        <div class="form-group">
-            <label for="thresholdingInput">Threshholding: </label>
-            <input id="thresholdingInput" class="form-control-range" type="range" min="0" max="255" />
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <input type="checkbox" 
+                           oninput="document.getElementById('thresholdingInput').disabled = !this.checked;
+                                    document.getElementById('thresholdingNumberInput').disabled = !this.checked;" />
+                    <label for="thresholdingNumberInput">Threshholding: </label>
+                </div>
+            </div>
+            <input id="thresholdingNumberInput" type="number" min="0" max="255" value="100" disabled
+                   oninput="document.getElementById('thresholdingInput').value = this.value;" />
+            <input id="thresholdingInput" class="form-control-range" type="range" min="0" max="255" value="100" disabled
+                   oninput="document.getElementById('thresholdingNumberInput').value = this.value;" />
         </div>
-        <div class="form-group">
-            <label for="brightnessInput">Brightness: </label>
-            <input id="brightnessInput" class="form-control-range" type="range" min="-255" max="255" />
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <input type="checkbox"
+                           oninput="document.getElementById('brightnessInput').disabled = !this.checked;
+                                    document.getElementById('brightnessNumberInput').disabled = !this.checked;" />
+                    <label for="brightnessNumberInput">Brightness: </label>
+                </div>
+            </div>
+            <input id="brightnessNumberInput" type="number" min="-255" max="255" value="0" disabled
+                   oninput="document.getElementById('brightnessInput').value = this.value;" />
+            <input id="brightnessInput" class="form-control-range" type="range" min="-255" max="255" value="0" disabled
+                   oninput="document.getElementById('brightnessNumberInput').value = this.value;" />
         </div>
-        <div class="form-group">
-            <label for="contrastInput">Contrast: </label>
-            <input id="contrastInput" class="form-control-range" type="range" min="0" max="4" />
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <input type="checkbox"
+                           oninput="document.getElementById('contrastInput').disabled = !this.checked;
+                                    document.getElementById('contrastNumberInput').disabled = !this.checked;" />
+                    <label for="contrastNumberInput">Contrast: </label>
+                </div>
+            </div>
+            <input id="contrastNumberInput" type="number" min="0" max="4" value="1" disabled
+                   oninput="document.getElementById('contrastInput').value = this.value * 100;" />
+            <input id="contrastInput" class="form-control-range" type="range" min="0" max="400" value="100" disabled
+                   oninput="document.getElementById('contrastNumberInput').value = this.value / 100;" />
         </div>
-        <div class="form-group">
-            <label for="gammaInput">Gamma: </label>
-            <input id="gammaInput" class="form-control-range" type="range" min="0" max="4" />
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <input type="checkbox"
+                           oninput="document.getElementById('gammaInput').disabled = !this.checked;
+                                    document.getElementById('gammaNumberInput').disabled = !this.checked;" />
+                    <label for="gammaNumberInput">Gamma: </label>
+                </div>
+            </div>
+            <input id="gammaNumberInput" type="number" min="0" max="4" value="1" disabled
+                   oninput="document.getElementById('gammaInput').value = this.value * 100;" />
+            <input id="gammaInput" class="form-control-range" type="range" min="0" max="400" value="100" disabled
+                   oninput="document.getElementById('gammaNumberInput').value = this.value / 100;" />
         </div>
-        <div class="form-group">
+        <div class="input-group">
             <label for="grayScaleInput">Grayscale: </label>
             <input id="grayScaleInput" class="form-check-input" type="checkbox" />
         </div>
-        <div class="form-group">
+        <div class="input-group">
             <label for="invertInput">Invert colours: </label>
             <input id="invertInput" class="form-check-input" type="checkbox" />
         </div>

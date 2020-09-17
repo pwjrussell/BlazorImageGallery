@@ -11,30 +11,36 @@ window.OpenSeadragonFilteringClient = {
         };
 
         try {
-            var thresholdingValue = document.getElementById("thresholdingInput").value;
-            filterOptions.filters.processors.push(OpenSeadragon.Filters.THRESHOLDING(thresholdingValue));
+            if (document.getElementById("thresholdingNumberInput").disabled === false) {
+                var thresholdingValue = document.getElementById("thresholdingNumberInput").value;
+                filterOptions.filters.processors.push(OpenSeadragon.Filters.THRESHOLDING(thresholdingValue));
+            }
         } catch (e) { console.log(e); }
         try {
-            var brightnessValue = document.getElementById("brightnessInput").value;
-            filterOptions.filters.processors.push(OpenSeadragon.Filters.BRIGHTNESS(brightnessValue));
+            if (document.getElementById("brightnessNumberInput").disabled === false) {
+                var brightnessValue = document.getElementById("brightnessNumberInput").value;
+                filterOptions.filters.processors.push(OpenSeadragon.Filters.BRIGHTNESS(brightnessValue));
+            }
         } catch (e) { console.log(e); }
         try {
-            var contrastValue = document.getElementById("contrastInput").value;
-            filterOptions.filters.processors.push(OpenSeadragon.Filters.CONTRAST(contrastValue));
+            if (document.getElementById("contrastNumberInput").disabled === false) {
+                var contrastValue = document.getElementById("contrastNumberInput").value;
+                filterOptions.filters.processors.push(OpenSeadragon.Filters.CONTRAST(contrastValue));
+            }
         } catch (e) { console.log(e); }
         try {
-            var gammaValue = document.getElementById("gammaInput").value;
-            filterOptions.filters.processors.push(OpenSeadragon.Filters.GAMMA(gammaValue));
+            if (document.getElementById("gammaNumberInput").disabled === false) {
+                var gammaValue = document.getElementById("gammaNumberInput").value;
+                filterOptions.filters.processors.push(OpenSeadragon.Filters.GAMMA(gammaValue));
+            }
         } catch (e) { console.log(e); }
         try {
-            var grayscaleValue = document.getElementById("grayScaleInput").checked;
-            if (grayscaleValue) {
+            if (document.getElementById("grayScaleInput").checked) {
                 filterOptions.filters.processors.push(OpenSeadragon.Filters.GREYSCALE());
             }
         } catch (e) { console.log(e); }
         try {
-            var invertValue = document.getElementById("invertInput").checked;
-            if (invertValue) {
+            if (document.getElementById("invertInput").checked) {
                 filterOptions.filters.processors.push(OpenSeadragon.Filters.INVERT());
             }
         } catch (e) { console.log(e); }
