@@ -11,6 +11,17 @@ window.addCustomOSDButtons = function (viewer) {
         }
     });
 
+    var filtersButton = new OpenSeadragon.Button({
+        tooltip: "Apply filters to the image",
+        srcRest: "Images/filters_grouphover.png",
+        srcGroup: "Images/filters_grouphover.png",
+        srcHover: "Images/filters_hover.png",
+        srcDown: "Images/filters_pressed.png",
+        onClick: function () {
+            document.getElementById("filterButton").click();
+        }
+    });
+
     var adminButton = new OpenSeadragon.Button({
         tooltip: "Admin",
         srcRest: "Images/admin_rest.png",
@@ -34,7 +45,7 @@ window.addCustomOSDButtons = function (viewer) {
     });
 
     var bottomRightButtonGroup = new OpenSeadragon.ButtonGroup({
-        buttons: [infoButton, adminButton, darkModeButton]
+        buttons: [infoButton, filtersButton, adminButton, darkModeButton]
     });
 
     viewer.addControl(bottomRightButtonGroup.element, {
