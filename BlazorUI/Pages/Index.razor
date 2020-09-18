@@ -43,7 +43,7 @@
            @onclick="@(async() => { await GetDescriptionForPage(PageIndex); })"></a>
         <!-- Button to trigger the filter modal -->
         <a id="filterButton"
-           data-toggle="modal" data-target="#filterModal"></a>
+           data-toggle="modal" data-backdrop="false" data-target="#filterModal"></a>
 
         <a id="adminButton" href="/admin@((Category == "") ? "" : $"?category={Category}")"></a>
     </div>
