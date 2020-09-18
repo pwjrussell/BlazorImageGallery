@@ -11,27 +11,69 @@ window.OpenSeadragonFilteringClient = {
         };
 
         try {
-            if (document.getElementById("thresholdingNumberInput").disabled === false) {
-                var thresholdingValue = document.getElementById("thresholdingNumberInput").value;
-                filterOptions.filters.processors.push(OpenSeadragon.Filters.THRESHOLDING(thresholdingValue));
+            if (document.getElementById("exposureNumberInput").disabled === false) {
+                var exposureValue = document.getElementById("exposureNumberInput").value;
+                filterOptions.filters.processors.push(function (context, callback) {
+                    Caman(context.canvas, function () {
+                        this.exposure(exposureValue);
+                        this.render(callback);
+                    });
+                });
             }
         } catch (e) { console.log(e); }
         try {
             if (document.getElementById("brightnessNumberInput").disabled === false) {
                 var brightnessValue = document.getElementById("brightnessNumberInput").value;
-                filterOptions.filters.processors.push(OpenSeadragon.Filters.BRIGHTNESS(brightnessValue));
+                filterOptions.filters.processors.push(function (context, callback) {
+                    Caman(context.canvas, function () {
+                        this.brightness(brightnessValue);
+                        this.render(callback);
+                    });
+                });
             }
         } catch (e) { console.log(e); }
         try {
             if (document.getElementById("contrastNumberInput").disabled === false) {
                 var contrastValue = document.getElementById("contrastNumberInput").value;
-                filterOptions.filters.processors.push(OpenSeadragon.Filters.CONTRAST(contrastValue));
+                filterOptions.filters.processors.push(function (context, callback) {
+                    Caman(context.canvas, function () {
+                        this.contrast(contrastValue);
+                        this.render(callback);
+                    });
+                });
+            }
+        } catch (e) { console.log(e); }
+        try {
+            if (document.getElementById("saturationNumberInput").disabled === false) {
+                var saturationValue = document.getElementById("saturationNumberInput").value;
+                filterOptions.filters.processors.push(function (context, callback) {
+                    Caman(context.canvas, function () {
+                        this.saturation(saturationValue);
+                        this.render(callback);
+                    });
+                });
+            }
+        } catch (e) { console.log(e); }
+        try {
+            if (document.getElementById("vibranceNumberInput").disabled === false) {
+                var vibranceValue = document.getElementById("vibranceNumberInput").value;
+                filterOptions.filters.processors.push(function (context, callback) {
+                    Caman(context.canvas, function () {
+                        this.vibrance(vibranceValue);
+                        this.render(callback);
+                    });
+                });
             }
         } catch (e) { console.log(e); }
         try {
             if (document.getElementById("gammaNumberInput").disabled === false) {
                 var gammaValue = document.getElementById("gammaNumberInput").value;
-                filterOptions.filters.processors.push(OpenSeadragon.Filters.GAMMA(gammaValue));
+                filterOptions.filters.processors.push(function (context, callback) {
+                    Caman(context.canvas, function () {
+                        this.gamma(gammaValue);
+                        this.render(callback);
+                    });
+                });
             }
         } catch (e) { console.log(e); }
         try {
