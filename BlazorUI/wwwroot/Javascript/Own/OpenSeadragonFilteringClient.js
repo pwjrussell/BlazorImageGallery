@@ -1,6 +1,11 @@
 ﻿
 window.OpenSeadragonFilteringClient = {
-    clearFilters: function () {
+    clearFilters: function (parentNode) {
+        var inputs = parentNode.getElementsByTagName("input");
+        for (var i = 0; i < inputs.length; i++) {
+            inputs[i].value = inputs[i].defaultValue;
+        }
+
         window.OpenSeadragonClient.viewer.setFilterOptions(null);
     },
     applyFilters: function () {

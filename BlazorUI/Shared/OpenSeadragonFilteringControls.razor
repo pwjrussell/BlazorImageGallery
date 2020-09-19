@@ -1,6 +1,6 @@
 ﻿
 <div>
-    <div>
+    <div onchange="window.OpenSeadragonFilteringClient.applyFilters();">
         <div>
             <input type="checkbox" checked="checked"
                    oninput="document.getElementById('exposureInput').disabled = !this.checked;
@@ -72,12 +72,11 @@
     </div>
 
     <div>
-        <button type="button" 
+        <button type="button"
                 class="btn btn-outline-primary"
-                onclick="window.OpenSeadragonFilteringClient.clearFilters();">Clear Filters</button>
-
-        <button type="button" 
-                class="btn btn-primary"
-                onclick="window.OpenSeadragonFilteringClient.applyFilters();">Apply Filters</button>
+                onclick="window.OpenSeadragonFilteringClient.clearFilters(this.parentNode.parentNode);">
+            Clear Filters
+        </button>
+        <p><small>Clearing the filters may require closing the popup.</small></p>
     </div>
 </div>
