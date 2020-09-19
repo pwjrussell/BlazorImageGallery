@@ -5,7 +5,7 @@
             <input type="checkbox" checked="checked"
                    oninput="document.getElementById('exposureInput').disabled = !this.checked;
                             document.getElementById('exposureNumberInput').disabled = !this.checked;" />
-            <label for="exposureNumberInput">Exposure: </label>
+            <label for="exposureNumberInput" style="width: 110px;">Exposure: </label>
             <input id="exposureNumberInput" type="number" min="-100" max="100" value="0"
                    oninput="document.getElementById('exposureInput').value = this.value;" />
             <input id="exposureInput" type="range" min="-100" max="100" value="0"
@@ -15,7 +15,7 @@
             <input type="checkbox" checked="checked"
                    oninput="document.getElementById('brightnessInput').disabled = !this.checked;
                             document.getElementById('brightnessNumberInput').disabled = !this.checked;" />
-            <label for="brightnessNumberInput">Brightness: </label>
+            <label for="brightnessNumberInput" style="width: 110px;">Brightness: </label>
             <input id="brightnessNumberInput" type="number" min="-100" max="100" value="0"
                    oninput="document.getElementById('brightnessInput').value = this.value;" />
             <input id="brightnessInput" type="range" min="-100" max="100" value="0"
@@ -25,7 +25,7 @@
             <input type="checkbox" checked="checked"
                    oninput="document.getElementById('contrastInput').disabled = !this.checked;
                             document.getElementById('contrastNumberInput').disabled = !this.checked;" />
-            <label for="contrastNumberInput">Contrast: </label>
+            <label for="contrastNumberInput" style="width: 110px;">Contrast: </label>
             <input id="contrastNumberInput" type="number" min="-100" max="100" value="0"
                    oninput="document.getElementById('contrastInput').value = this.value;" />
             <input id="contrastInput" type="range" min="-100" max="100" value="0"
@@ -35,7 +35,7 @@
             <input type="checkbox" checked="checked"
                    oninput="document.getElementById('saturationInput').disabled = !this.checked;
                             document.getElementById('saturationNumberInput').disabled = !this.checked;" />
-            <label for="saturationNumberInput">Saturation: </label>
+            <label for="saturationNumberInput" style="width: 110px;">Saturation: </label>
             <input id="saturationNumberInput" type="number" min="-100" max="100" value="0"
                    oninput="document.getElementById('saturationInput').value = this.value;" />
             <input id="saturationInput" type="range" min="-100" max="100" value="0"
@@ -45,7 +45,7 @@
             <input type="checkbox" checked="checked"
                    oninput="document.getElementById('vibranceInput').disabled = !this.checked;
                             document.getElementById('vibranceNumberInput').disabled = !this.checked;" />
-            <label for="vibranceNumberInput">Vibrance: </label>
+            <label for="vibranceNumberInput" style="width: 110px;">Vibrance: </label>
             <input id="vibranceNumberInput" type="number" min="-100" max="100" value="0"
                    oninput="document.getElementById('vibranceInput').value = this.value;" />
             <input id="vibranceInput" type="range" min="-100" max="100" value="0"
@@ -55,19 +55,19 @@
             <input type="checkbox" checked="checked"
                    oninput="document.getElementById('gammaInput').disabled = !this.checked;
                             document.getElementById('gammaNumberInput').disabled = !this.checked;" />
-            <label for="gammaNumberInput">Gamma: </label>
+            <label for="gammaNumberInput" style="width: 110px;">Gamma: </label>
             <input id="gammaNumberInput" type="number" min="0" max="10" value="1"
                    oninput="document.getElementById('gammaInput').value = this.value;" />
             <input id="gammaInput" type="range" min="0" max="10" value="1"
                    oninput="document.getElementById('gammaNumberInput').value = this.value;" />
         </div>
         <div>
-            <label for="grayScaleInput">Grayscale: </label>
             <input id="grayScaleInput" type="checkbox" />
+            <label for="grayScaleInput">Grayscale: </label>
         </div>
         <div>
-            <label for="invertInput">Invert colours: </label>
             <input id="invertInput" type="checkbox" />
+            <label for="invertInput">Invert colours: </label>
         </div>
     </div>
 
