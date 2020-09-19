@@ -40,12 +40,7 @@ window.OpenSeadragonFilteringClient = {
         try {
             if (document.getElementById("contrastNumberInput").disabled === false) {
                 var contrastValue = document.getElementById("contrastNumberInput").value;
-                filterOptions.filters.processors.push(function (context, callback) {
-                    Caman(context.canvas, function () {
-                        this.contrast(contrastValue);
-                        this.render(callback);
-                    });
-                });
+                filterOptions.filters.processors.push(OpenSeadragon.Filters.CONTRAST(contrastValue));
             }
         } catch (e) { console.log(e); }
         try {
