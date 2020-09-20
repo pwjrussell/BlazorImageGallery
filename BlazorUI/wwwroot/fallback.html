@@ -23,7 +23,10 @@
         <div class="fixed-bottom-right text-white" style="margin-right:50px;">
             <!-- Button to trigger description modal -->
             <div id="infoButton"
-               data-toggle="modal" data-target="#descriptionModal" onclick="getDescription(window.viewer.currentPage());"></div>
+                 data-toggle="modal" data-target="#descriptionModal" onclick="getDescription(window.viewer.currentPage());"></div>
+            <!-- Button to trigger the filter modal -->
+            <a id="filterButton"
+               data-toggle="modal" data-backdrop="false" data-target="#filterModal"></a>
         </div>
 
         <!-- Description modal -->
@@ -52,6 +55,110 @@
                 </div>
             </div>
         </div>
+        <!-- Filter modal -->
+        <div class="modal fade" style="pointer-events: none;"
+             id="filterModal"
+             tabindex="-1"
+             role="dialog"
+             aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document" style="margin-left: 40px; max-width: 400px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="filterModalLabel">
+                            Filters
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div>
+                            <div onchange="window.OpenSeadragonFilteringClient.applyFilters();">
+                                <div>
+                                    <input type="checkbox" checked="checked"
+                                           oninput="document.getElementById('exposureInput').disabled = !this.checked;
+                                                    document.getElementById('exposureNumberInput').disabled = !this.checked;" />
+                                    <label for="exposureNumberInput" style="width: 110px;">Exposure: </label>
+                                    <input id="exposureNumberInput" type="number" min="-100" max="100" value="0" style="width: 80px;"
+                                           oninput="document.getElementById('exposureInput').value = this.value;" />
+                                    <input id="exposureInput" type="range" min="-100" max="100" value="0"
+                                           onchange="document.getElementById('exposureNumberInput').value = this.value;" />
+                                </div>
+                                <div>
+                                    <input type="checkbox" checked="checked"
+                                           oninput="document.getElementById('brightnessInput').disabled = !this.checked;
+                                                    document.getElementById('brightnessNumberInput').disabled = !this.checked;" />
+                                    <label for="brightnessNumberInput" style="width: 110px;">Brightness: </label>
+                                    <input id="brightnessNumberInput" type="number" min="-100" max="100" value="0" style="width: 80px;"
+                                           oninput="document.getElementById('brightnessInput').value = this.value;" />
+                                    <input id="brightnessInput" type="range" min="-100" max="100" value="0"
+                                           onchange="document.getElementById('brightnessNumberInput').value = this.value;" />
+                                </div>
+                                <div>
+                                    <input type="checkbox" checked="checked"
+                                           oninput="document.getElementById('contrastInput').disabled = !this.checked;
+                                                    document.getElementById('contrastNumberInput').disabled = !this.checked;" />
+                                    <label for="contrastNumberInput" style="width: 110px;">Contrast: </label>
+                                    <input id="contrastNumberInput" type="number" min="0" max="4" value="1" style="width: 80px;"
+                                           oninput="document.getElementById('contrastInput').value = this.value * 100;" />
+                                    <input id="contrastInput" type="range" min="0" max="400" value="100"
+                                           onchange="document.getElementById('contrastNumberInput').value = this.value / 100;" />
+                                </div>
+                                <div>
+                                    <input type="checkbox" checked="checked"
+                                           oninput="document.getElementById('saturationInput').disabled = !this.checked;
+                                                    document.getElementById('saturationNumberInput').disabled = !this.checked;" />
+                                    <label for="saturationNumberInput" style="width: 110px;">Saturation: </label>
+                                    <input id="saturationNumberInput" type="number" min="-100" max="100" value="0" style="width: 80px;"
+                                           oninput="document.getElementById('saturationInput').value = this.value;" />
+                                    <input id="saturationInput" type="range" min="-100" max="100" value="0"
+                                           onchange="document.getElementById('saturationNumberInput').value = this.value;" />
+                                </div>
+                                <div>
+                                    <input type="checkbox" checked="checked"
+                                           oninput="document.getElementById('vibranceInput').disabled = !this.checked;
+                                                    document.getElementById('vibranceNumberInput').disabled = !this.checked;" />
+                                    <label for="vibranceNumberInput" style="width: 110px;">Vibrance: </label>
+                                    <input id="vibranceNumberInput" type="number" min="-100" max="100" value="0" style="width: 80px;"
+                                           oninput="document.getElementById('vibranceInput').value = this.value;" />
+                                    <input id="vibranceInput" type="range" min="-100" max="100" value="0"
+                                           onchange="document.getElementById('vibranceNumberInput').value = this.value;" />
+                                </div>
+                                <div>
+                                    <input type="checkbox" checked="checked"
+                                           oninput="document.getElementById('gammaInput').disabled = !this.checked;
+                                                    document.getElementById('gammaNumberInput').disabled = !this.checked;" />
+                                    <label for="gammaNumberInput" style="width: 110px;">Gamma: </label>
+                                    <input id="gammaNumberInput" type="number" min="0" max="10" value="1" style="width: 80px;"
+                                           oninput="document.getElementById('gammaInput').value = this.value * 10;" />
+                                    <input id="gammaInput" type="range" min="0" max="100" value="10"
+                                           onchange="document.getElementById('gammaNumberInput').value = this.value / 10;" />
+                                </div>
+                                <div>
+                                    <input id="grayScaleInput" type="checkbox" />
+                                    <label for="grayScaleInput">Grayscale: </label>
+                                </div>
+                                <div>
+                                    <input id="invertInput" type="checkbox" />
+                                    <label for="invertInput">Invert colours: </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <button id="OSDFilteringResetButton"
+                                        type="button"
+                                        class="btn btn-outline-primary"
+                                        onclick="window.OpenSeadragonFilteringClient.clearFilters(this.parentNode.parentNode);">
+                                    Clear Filters
+                                </button>
+                                <p><small>Clearing the filters may require closing the popup.</small></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div id="darkModeButton" onclick="toggleNightMode();"></div>
 
@@ -59,10 +166,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
+    <script type="text/javascript" src="Javascript/dist/CamanJS-4.1.2/caman.full.min.js"></script>
     <script type="text/javascript" src="Javascript/dist/openseadragon-bin-2.4.2/openseadragon.min.js"></script>
     <script type="text/javascript" src="Javascript/dist/FileSaver.js-2.0.2/FileSaver.min.js"></script>
     <script type="text/javascript" src="Javascript/dist/annotorious-openseadragon-2.0.6/openseadragon-annotorious.min.js"></script>
     <script type="text/javascript" src="Javascript/dist/openseadragonScreenshot/openseadragonScreenshot.min.js"></script>
+    <script type="text/javascript" src="Javascript/dist/OpenSeadragonFiltering-1.1.0/openseadragon-filtering.js"></script>
+    <script type="text/javascript" src="Javascript/dist/OpenSeadragonScalebar-master/openseadragon-scalebar.js"></script>
 
     <script type="text/javascript" src="Javascript/Own/AddCustomButtons.js"></script>
 
@@ -142,6 +252,10 @@
             }
         }
 
+        function pixelsPerMeterPathFromAnnotationsPath(annotationsPath) {
+            return annotationsPath.substring(0, annotationsPath.lastIndexOf("/")) + "/PixelsPerMeter.txt";
+        }
+
         getCORS("https://dzigalleryfunctions.azurewebsites.net/api/ListDZIDirectoryURIs?category=" + getParameterByName('category'),
             function () {
                 window.dirURIs = JSON.parse(this.response);
@@ -177,6 +291,8 @@
                     maxZoomPixelRatio: 2.5
                 });
 
+                window.OpenSeadragonClient = { viewer: window.viewer };
+
                 // Max controls width
 
                 window.viewer.controls[0].element.parentElement.parentElement.style.maxWidth =
@@ -190,7 +306,44 @@
 
                 window.viewer.screenshot();
 
+                // Scalebar
+
+                getCORS(pixelsPerMeterPathFromAnnotationsPath(window.annotationPaths[0]), function () {
+                    var ppm = parseFloat(this.responseText);
+                    window.viewer.scalebar({
+                        pixelsPerMeter: ppm,
+                        backgroundColor: "rgba(255, 255, 255, 0.5)",
+                        stayInsideImage: false
+                    });
+                });
+
                 // Annotorious
+
+                window.viewer.addHandler("page", function (e) {
+                    // Reset filters
+                    document.getElementById("OSDFilteringResetButton").click();
+
+                    // Scalebar
+                    getCORS(pixelsPerMeterPathFromAnnotationsPath(window.annotationPaths[e.page]), function () {
+                        var ppm = parseFloat(this.responseText)
+                        window.viewer.scalebar({
+                            pixelsPerMeter: ppm
+                        });
+                    });
+
+                    window.anno.selectAnnotation();
+                    window.anno.setAnnotations([]);
+
+                    if (window.showAnnotations) {
+                        window.anno.loadAnnotations(window.annotationPaths[e.page]).then(function () {
+                            populateDropdown();
+                        }, function () {
+                            populateDropdown();
+                        });
+                    } else {
+                        populateDropdown();
+                    }
+                });
 
                 window.showAnnotations = false;
                 window.addEventListener("resize", function () {
@@ -208,23 +361,9 @@
                     readOnly: true,
                     locale: 'auto'
                 });
-
-                window.viewer.addHandler("page", function (e) {
-                    window.anno.selectAnnotation();
-                    window.anno.setAnnotations([]);
-
-                    if (window.showAnnotations) {
-                        window.anno.loadAnnotations(window.annotationPaths[e.page]).then(function () {
-                            populateDropdown();
-                        }, function () {
-                            populateDropdown();
-                        });
-                    } else {
-                        populateDropdown();
-                    }
-                });
             });
     </script>
+    <script type="text/javascript" src="Javascript/Own/OpenSeadragonFilteringClient.js"></script>
 </body>
 
 </html>
