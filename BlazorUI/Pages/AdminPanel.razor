@@ -176,6 +176,8 @@
                 @if (Descriptions != null)
                 {
                     <div class="modal-body">
+                        <label>Pixels per metre: </label>
+                        <input id="pixelsPerMeterInput" type="number" @onchange="PostDZIPixelsPerMeter" />
                         <HTMLEditor @ref="Editor" Content="Descriptions[CategoryIndex][PageIndex]" />
                         <button class="btn btn-primary"
                                 type="button"
@@ -258,6 +260,15 @@
         DisplayAnnotations = !DisplayAnnotations;
         await Viewer.OpenSeadragonClient.SetDisplayAnnotations(DisplayAnnotations);
         this.StateHasChanged();
+    }
+
+    private async Task PostDZIPixelsPerMeter(ChangeEventArgs args)
+    {
+        ToggleLoadingScreen();
+        await AdminClient.PostDZIPixelsPerMeterAsync(
+            Categories[CategoryIndex], ImageNames[CategoryIndex][PageIndex], 
+            string.IsNullOrEmpty(args.Value.ToString()) ? 0 : Convert.ToDouble(args.Value));
+        ToggleLoadingScreen();
     }
 
     private async Task PostDescription()

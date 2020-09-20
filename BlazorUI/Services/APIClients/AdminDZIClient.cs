@@ -56,5 +56,10 @@ namespace BlazorUI.Services.APIClients
         {
             return await _client.PostAsJsonAsync($"SetDescription/{category}/{name}", markup);
         }
+
+        public async Task<HttpResponseMessage> PostDZIPixelsPerMeterAsync(string category, string name, double pixelsPerMeter)
+        {
+            return await _client.PostAsync($"SetPixelsPerMeter/{category}/{name}", new StringContent(pixelsPerMeter.ToString()));
+        }
     }
 }

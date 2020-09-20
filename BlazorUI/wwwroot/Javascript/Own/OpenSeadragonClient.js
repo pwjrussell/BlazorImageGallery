@@ -66,6 +66,29 @@ window.OpenSeadragonClient = {
 
         this.annotationPaths = annotationPaths;
         this.initializeAnno();
+
+        // Scalebar
+
+        this.getCORS(this.pixelsPerMeterPathFromAnnotationsPath(annotationPaths[0]), function () {
+            var ppm = parseFloat(this.responseText);
+            _this.viewer.scalebar({
+                pixelsPerMeter: ppm,
+                backgroundColor: "rgba(255, 255, 255, 0.5)",
+                stayInsideImage: false
+            });
+            document.getElementById("pixelsPerMeterInput").value = ppm;
+        });
+    },
+    getCORS: function (url, success) {
+        var xhr = new XMLHttpRequest();
+        if (!('withCredentials' in xhr)) xhr = new XDomainRequest(); // fix IE8/9
+        xhr.open('GET', url);
+        xhr.addEventListener("load", success);
+        xhr.send();
+        return xhr;
+    },
+    pixelsPerMeterPathFromAnnotationsPath: function (annotationsPath) {
+        return `${annotationsPath.substring(0, annotationsPath.lastIndexOf("/"))}/PixelsPerMeter.txt`;
     },
     getIfViewerExists: function () {
         return (this.viewer != null);
@@ -133,6 +156,15 @@ window.OpenSeadragonClient = {
 
             // Reset filters
             document.getElementById("OSDFilteringResetButton").click();
+
+            // Scalebar
+            _this.getCORS(_this.pixelsPerMeterPathFromAnnotationsPath(_this.annotationPaths[e.page]), function () {
+                var ppm = parseFloat(this.responseText)
+                _this.viewer.scalebar({
+                    pixelsPerMeter: ppm
+                });
+                document.getElementById("pixelsPerMeterInput").value = ppm;
+            });
         });
 
         this.anno.on('createAnnotation', function (annotation) {
