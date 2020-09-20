@@ -1,12 +1,23 @@
 ﻿
+// Prevent Caman from caching the canvas because without this:
+// 1. We have a memory leak
+// 2. Non-caman filters in between 2 camans filters get ignored.
+Caman.Store.put = function () { };
+
 window.OpenSeadragonFilteringClient = {
     clearFilters: function (parentNode) {
         var inputs = parentNode.getElementsByTagName("input");
         for (var i = 0; i < inputs.length; i++) {
-            inputs[i].value = inputs[i].defaultValue;
+            if (inputs[i].defaultValue) {
+                inputs[i].value = inputs[i].defaultValue;
+                inputs[i].disabled = false;
+            } else {
+                inputs[i].checked = inputs[i].defaultChecked;
+            }
         }
 
         window.OpenSeadragonClient.viewer.setFilterOptions(null);
+        window.OpenSeadragonClient.viewer.forceRedraw();
     },
     applyFilters: function () {
         var filterOptions = {
