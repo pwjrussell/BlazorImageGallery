@@ -130,6 +130,9 @@ window.OpenSeadragonClient = {
             } else {
                 _this.dotnetHelper.invokeMethodAsync('NotifyAnnotationsChanged', []);
             }
+
+            // Reset filters
+            document.getElementById("OSDFilteringResetButton").click();
         });
 
         this.anno.on('createAnnotation', function (annotation) {
