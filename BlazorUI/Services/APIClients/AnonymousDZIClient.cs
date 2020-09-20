@@ -20,18 +20,18 @@ namespace BlazorUI.Services.APIClients
         }
 
         /// <summary>
-        /// Gets either the URIs of either the categories (if no category is provided) or images within a category.
+        /// Gets the URIs of either the images within a category.
         /// </summary>
         /// <param name="category">The category containing the images whose URIs are queried.</param>
-        /// <returns>The URIs of either the categories or images.</returns>
-        public async Task<string[]> GetDZIDirectoryURIsAsync(string category = "")
+        /// <returns>The URIs of the images.</returns>
+        public async Task<string[]> GetDZIDirectoryURIsAsync(string category)
         {
-            if (category.Contains('/') || category.Contains('\\'))
+            if (string.IsNullOrEmpty(category) || category.Contains('/') || category.Contains('\\'))
             {
                 return new string[0];
             }
             return await _client.GetFromJsonAsync<string[]>(
-                $"ListDZIDirectoryURIs{((category == "") ? "" : $"?category={category}")}");
+                $"ListDZIDirectoryURIs?category={category}");
         }
         /// <summary>
         /// 

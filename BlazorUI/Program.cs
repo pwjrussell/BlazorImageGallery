@@ -39,8 +39,7 @@ namespace BlazorUI
             builder.Services.AddTransient(options => {
                 return new AdminDZIClient(
                     new HttpClient(options.GetRequiredService<AuthorizedAuthorizationMessageHandler>()) 
-                    { BaseAddress = new System.Uri("https://dzigalleryfunctions.azurewebsites.net/api/") },
-                    options.GetRequiredService<IAccessTokenProvider>());
+                    { BaseAddress = new System.Uri("https://dzigalleryfunctions.azurewebsites.net/api/") });
             });
 
             builder.Services.AddSingleton<OpenSeadragonClient>();

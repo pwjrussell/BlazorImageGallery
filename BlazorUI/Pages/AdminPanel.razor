@@ -337,7 +337,7 @@
 
     private async Task UpdateInfo()
     {
-        string[] categoryUris = await AnonymousClient.GetDZIDirectoryURIsAsync();
+        string[] categoryUris = await AdminClient.GetListOfDZICategoryURIsAsync();
         Categories = categoryUris.Select(u => HttpUtility.UrlDecode(u[(u[0..^1].LastIndexOf('/') + 1)..^1])).ToArray();
         ImageNames = new string[Categories.Length][];
         TileSourcePaths = new string[Categories.Length][];

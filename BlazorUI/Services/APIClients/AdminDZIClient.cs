@@ -16,13 +16,15 @@ namespace BlazorUI.Services.APIClients
     public class AdminDZIClient
     {
         private readonly HttpClient _client;
-        private readonly IAccessTokenProvider _tokenProvider;
-        private readonly string _storageBaseAddress = "https://dzigallerystorage.blob.core.windows.net/";
 
-        public AdminDZIClient(HttpClient client, IAccessTokenProvider tokenProvider)
+        public AdminDZIClient(HttpClient client)
         {
             _client = client;
-            _tokenProvider = tokenProvider;
+        }
+
+        public async Task<string[]> GetListOfDZICategoryURIsAsync()
+        {
+            return await _client.GetFromJsonAsync<string[]>("ListDZICategoryURIs");
         }
 
         public async Task<HttpResponseMessage> PostCreateDZIAsync(IFileListEntry image, string category, int tileSize, int overlap)
